@@ -1,0 +1,5 @@
+/mnt/hgfs/CMakeProject/project/build/CMakeFiles/main.dir
+/mnt/hgfs/CMakeProject/project/build/CMakeFiles/edit_cache.dir
+/mnt/hgfs/CMakeProject/project/build/CMakeFiles/rebuild_cache.dir
+/mnt/hgfs/CMakeProject/project/build/src/CMakeFiles/edit_cache.dir
+/mnt/hgfs/CMakeProject/project/build/src/CMakeFiles/rebuild_cache.dir
