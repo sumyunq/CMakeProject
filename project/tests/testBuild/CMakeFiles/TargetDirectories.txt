@@ -1,3 +1,0 @@
-/mnt/hgfs/CMakeProject/project/tests/testBuild/CMakeFiles/test1.dir
-/mnt/hgfs/CMakeProject/project/tests/testBuild/CMakeFiles/edit_cache.dir
-/mnt/hgfs/CMakeProject/project/tests/testBuild/CMakeFiles/rebuild_cache.dir
