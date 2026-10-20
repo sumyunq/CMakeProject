@@ -4,5 +4,7 @@
 /CMakeUserPresets.json
 /logs/
 /.superpowers/
+/.vs/
+/out/
 __pycache__/
 *.user

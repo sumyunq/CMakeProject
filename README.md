@@ -31,6 +31,18 @@ OpenCV 固定提交 `40738fb16ceddb5fb3fea747585f7ce6abb0605b`，对应正式标
 
 ## 运行
 
+### 用 Visual Studio 打开
+
+打开包含本 README、CMakeLists.txt 的仓库根目录。配置选择 `local-debug`（显示为 Qt 6.8.3 / OpenCV 5.0.0 / x64 Debug）或 `local-release`。
+
+本机预设显式指定已验证的 CMake 3.30.5、Ninja 和 MSVC 14.44.35207；IDE 的 external 架构/工具集元数据负责选择 x64/v143 环境。不要直接使用 VS 自动生成的默认配置或内置其他版本 CMake。
+
+如果此前已出现版本错误，预设更新后在 VS 执行一次“删除缓存并重新配置”。配置成功后把启动项选为 `vision_viewer.exe`（窗口）、`environment_probe.exe`（诊断）或 `mat_demo.exe`（矩阵实验）。本机预设还提供相应配置的 Qt/OpenCV DLL 搜索路径，不需要修改全局 PATH。
+
+若换机器，重新运行 InitializeLocal.ps1 生成本机预设。`.vs` 和 `out` 是 IDE 本地状态，不进入提交。
+
+### 命令行运行
+
 ```powershell
 ./scripts/Run.ps1 -Configuration Debug -Program environment_probe
 ./scripts/Run.ps1 -Configuration Debug -Program mat_demo

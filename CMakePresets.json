@@ -4,6 +4,8 @@
   "configurePresets": [
     {
       "name": "base", "hidden": true, "generator": "Ninja",
+      "architecture": {"value": "x64", "strategy": "external"},
+      "toolset": {"value": "v143,host=x64,version=14.44.35207", "strategy": "external"},
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_PREFIX_PATH": "$env{CVLAB_QT_ROOT}",

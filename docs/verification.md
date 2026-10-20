@@ -26,6 +26,7 @@ python scripts/VerifyLessons.py
 前置：按 README 生成用户预设；PowerShell 7、Python 3.9+。原始证据在忽略提交的 build/verification，CTest 明细在各构建目录。
 
 ## 失败与回归
+- VS 打开项目使用其内置 CMake 4.3.1-msvc1，与 3.30.5 基线冲突。已在本机预设指定 IDE 的 cmakeExecutable、编译器和运行库路径，在公共预设声明 external x64/v143 工具集；不升级或降级 VS。预设生成测试先失败后通过，现已加入 Build.ps1 默认验证流程，双配置原有 6 组 CTest 再次通过。原生 VS 界面重配和 F5 会话需用户实际确认。
 - 未实现桩的图像、窗口契约先失败，再实现到通过。
 - cvtColor 复用共享源缓冲区曾改写源图像，由回归测试发现并修复。
 - 离屏中文缺字由字体测试发现，提供系统字体目录后通过。
