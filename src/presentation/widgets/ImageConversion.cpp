@@ -1,5 +1,5 @@
 // Copyright (c) 2026 wbliu. SPDX-License-Identifier: MIT
-// Updated: 2026-10-20 16:01:48 +08:00 wbliu
+// Updated: 2026-10-20 16:55:25 +08:00 wbliu
 #include "presentation/widgets/ImageConversion.h"
 
 #include <limits>
@@ -11,7 +11,7 @@
 #include "core/diagnostics/Logger.h"
 
 namespace app::presentation {
-/// @brief 按显式通道语义转换并复制，使返回值与 OpenCV 数据生命周期分离。
+/// \brief 按显式通道语义转换并复制，使返回值与 OpenCV 数据生命周期分离。
 ImageConversionResult toOwnedQImage(const cv::Mat& image)
 {
     CVLAB_TRACE();

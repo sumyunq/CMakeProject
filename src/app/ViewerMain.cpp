@@ -1,5 +1,5 @@
 // Copyright (c) 2026 wbliu. SPDX-License-Identifier: MIT
-// Updated: 2026-10-20 16:01:48 +08:00 wbliu
+// Updated: 2026-10-20 16:55:25 +08:00 wbliu
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMessageBox>
 
@@ -7,7 +7,7 @@
 #include "core/diagnostics/Logger.h"
 #include "presentation/widgets/MainWindow.h"
 
-/// @brief 仅应用线程创建 Widgets，正常关闭后排空日志。
+/// \brief 仅应用线程创建 Widgets，正常关闭后排空日志。
 int main(int argc, char* argv[])
 {
     QApplication application(argc, argv);

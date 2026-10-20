@@ -1,5 +1,5 @@
 // Copyright (c) 2026 wbliu. SPDX-License-Identifier: MIT
-// Updated: 2026-10-20 16:01:48 +08:00 wbliu
+// Updated: 2026-10-20 16:55:25 +08:00 wbliu
 #include "presentation/widgets/MainWindow.h"
 
 #include <optional>
@@ -24,14 +24,15 @@ constexpr int kColorWidth = 80;
 constexpr int kFullChannel = 255;
 } // namespace
 
+/// \brief 保存本窗口图像状态与生成的控件引用，不接管 Qt 子控件所有权。
 class MainWindowPrivate {
 public:
-    Ui::MainWindow ui;
-    cv::Mat image;
-    std::optional<business::ImageProperties> properties;
+    Ui::MainWindow ui; ///< Designer 生成的控件引用；子控件归窗口的 Qt 对象树。
+    cv::Mat image; ///< 当前生成的 BGR 测试图像，是显示的像素数据来源。
+    std::optional<business::ImageProperties> properties; ///< 从 image 检查得到的元数据，失败时为空。
 };
 
-/// @brief 先生成布局和状态，再应用样式、连接与初始图像。
+/// \brief 先生成布局和状态，再应用样式、连接与初始图像。
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , clp_state(std::make_unique<MainWindowPrivate>())
@@ -43,10 +44,10 @@ MainWindow::MainWindow(QWidget* parent)
     initializeImage();
 }
 
-/// @brief 非 QObject 状态独立释放，UI 子控件保留 Qt 对象树所有权。
+/// \brief 非 QObject 状态独立释放，UI 子控件保留 Qt 对象树所有权。
 MainWindow::~MainWindow() { CVLAB_TRACE(); }
 
-/// @brief 只从内嵌资源加载样式，资源失败交由入口报告。
+/// \brief 只从内嵌资源加载样式，资源失败交由入口报告。
 void MainWindow::initializeStyle()
 {
     CVLAB_TRACE();
@@ -61,14 +62,14 @@ void MainWindow::initializeStyle()
     setStyleSheet(QString::fromUtf8(content));
 }
 
-/// @brief 同线程 UI 连接集中初始化，不使用 on_object_signal 自动槽。
+/// \brief 同线程 UI 连接集中初始化，不使用 on_object_signal 自动槽。
 void MainWindow::initializeConnections()
 {
     CVLAB_TRACE();
     connect(clp_state->ui.closeButton, &QPushButton::clicked, this, &QWidget::close);
 }
 
-/// @brief 图像和属性保存在模型状态，控件仅展示，不反向充当数据来源。
+/// \brief 图像和属性保存在模型状态，控件仅展示，不反向充当数据来源。
 void MainWindow::initializeImage()
 {
     CVLAB_TRACE();

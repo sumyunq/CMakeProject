@@ -49,3 +49,10 @@ python scripts/VerifyLessons.py
 - 独立只读审查无阻塞问题。未找到 wbliu-code-check，已按规范替代自检；未运行 qt-cpp-review。
 - Qt offscreen 的 propagateSizeHints 提示不影响图像、字体和关闭断言。可选 Vulkan SDK 未安装，当前 Widgets/CPU 课程不需要它。
 - 限制：未验证另一台全新 Windows、相机、真实工业精度或 GPU。没有推送远程。
+
+## Doxygen 注释统一追加验收
+- 按用户提供的 K03 规范逐项核对 src 下 6 个头文件、8 个实现文件，外部原件保持不变；项目约定保存于 docs/conventions/doxygen.md。
+- 严格候选扫描 M1～M5 全零；人工核对参数、返回值、生命周期与实现。删除的匿名拷贝操作以 note 如实说明，不改签名。
+- 相对日志迁移提交 5108632，全部 14 个源文件去除注释后的可执行 token 一致；枚举仅按逐项尾注需要拆行，没有接口或逻辑变化。
+- 最终 Debug/Release 均重新构建，各 6/6 CTest 通过；6 个公开头文件独立包含编译通过。检查证据保存在 build/verification/doxygen-final.log 和 spdlog-final-*.log。
+- 自检：修改仅涉及注释及对应规范记录，源文件无需新增构建条目。未找到 wbliu-code-check，以规范自检和独立只读审查替代；未运行 qt-cpp-review。

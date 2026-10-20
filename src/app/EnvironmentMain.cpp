@@ -1,5 +1,5 @@
 // Copyright (c) 2026 wbliu. SPDX-License-Identifier: MIT
-// Updated: 2026-10-20 16:01:48 +08:00 wbliu
+// Updated: 2026-10-20 16:55:25 +08:00 wbliu
 #include <climits>
 #include <iostream>
 #include <string_view>
@@ -18,7 +18,7 @@ constexpr float kFirstValue = 1.0F;
 constexpr float kSecondValue = 2.0F;
 constexpr float kExpectedValue = 3.0F;
 
-/// @brief 输出编译与运行时证据，检查实际库版本和一次基础运算。
+/// \brief 输出编译与运行时证据，检查实际库版本和一次基础运算。
 int probeEnvironment()
 {
     CVLAB_TRACE();
@@ -44,7 +44,7 @@ int probeEnvironment()
 }
 } // namespace
 
-/// @brief 日志与追踪作用域均在正常退出前完成。
+/// \brief 日志与追踪作用域均在正常退出前完成。
 int main(int argc, char* argv[])
 {
     QCoreApplication application(argc, argv);

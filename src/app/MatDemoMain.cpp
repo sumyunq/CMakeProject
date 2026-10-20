@@ -1,5 +1,5 @@
 // Copyright (c) 2026 wbliu. SPDX-License-Identifier: MIT
-// Updated: 2026-10-20 16:01:48 +08:00 wbliu
+// Updated: 2026-10-20 16:55:25 +08:00 wbliu
 #include <iostream>
 
 #include <QtCore/QCoreApplication>
@@ -16,7 +16,7 @@ constexpr int kColumns = 4;
 constexpr uchar kAliasValue = 9;
 constexpr uchar kRoiValue = 7;
 
-/// @brief 与第二课逐步预测对应的可运行实验。
+/// \brief 与第二课逐步预测对应的可运行实验。
 int demonstrateMat()
 {
     CVLAB_TRACE();
@@ -41,7 +41,7 @@ int demonstrateMat()
 }
 } // namespace
 
-/// @brief 建立应用日志上下文后运行实验。
+/// \brief 建立应用日志上下文后运行实验。
 int main(int argc, char* argv[])
 {
     QCoreApplication application(argc, argv);

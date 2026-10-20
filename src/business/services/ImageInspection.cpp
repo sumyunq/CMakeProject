@@ -1,5 +1,5 @@
 // Copyright (c) 2026 wbliu. SPDX-License-Identifier: MIT
-// Updated: 2026-10-20 16:01:48 +08:00 wbliu
+// Updated: 2026-10-20 16:55:25 +08:00 wbliu
 #include "business/services/ImageInspection.h"
 
 #include <opencv2/core.hpp>
@@ -7,7 +7,7 @@
 #include "core/diagnostics/Logger.h"
 
 namespace app::business {
-/// @brief 只读取元数据；空矩阵和张量不是本课二维图像接口的有效输入。
+/// \brief 只读取元数据；空矩阵和张量不是本课二维图像接口的有效输入。
 std::optional<ImageProperties> inspectImage(const cv::Mat& image)
 {
     CVLAB_TRACE();

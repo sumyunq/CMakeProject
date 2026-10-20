@@ -1,5 +1,5 @@
 // Copyright (c) 2026 wbliu. SPDX-License-Identifier: MIT
-// Updated: 2026-10-20 16:01:48 +08:00 wbliu
+// Updated: 2026-10-20 16:55:25 +08:00 wbliu
 #include "app/ApplicationRuntime.h"
 
 #include <filesystem>
@@ -10,7 +10,7 @@
 #include "core/diagnostics/Logger.h"
 
 namespace app {
-/// @brief 必须先初始化日志，后创建任何作用域追踪。
+/// \brief 必须先初始化日志，后创建任何作用域追踪。
 bool initializeLogging()
 {
     const std::filesystem::path executableDirectory(QCoreApplication::applicationDirPath().toStdWString());
@@ -26,7 +26,7 @@ bool initializeLogging()
     return true;
 }
 
-/// @brief 报告可定位但不包含用户数据的固定事件。
+/// \brief 报告可定位但不包含用户数据的固定事件。
 int reportFailure(const char* event)
 {
     CVLAB_TRACE();
@@ -35,7 +35,7 @@ int reportFailure(const char* event)
     return 1;
 }
 
-/// @brief 停止日志器自身不再创建追踪，防止停止后再次入队。
+/// \brief 停止日志器自身不再创建追踪，防止停止后再次入队。
 int finishLogging(int exitCode)
 {
     core::Logger::instance().write(core::LogLevel::kInfo, "application-stopping");

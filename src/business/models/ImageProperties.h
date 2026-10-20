@@ -1,15 +1,16 @@
-/*!
+/**
  * @file ImageProperties.h
  * @brief 图像元数据，不保存 UI 状态。
  * @copyright Copyright (c) 2026 wbliu
  * SPDX-License-Identifier: MIT
- * @date 2026-10-20 16:01:48 +08:00 wbliu
+ * @date 2026-10-20 16:55:25 +08:00 wbliu
  */
 #pragma once
 
 #include <cstddef>
 
 namespace app::business {
+/// \brief 二维图像的元数据快照，不持有像素缓冲区或界面控件。
 struct ImageProperties {
     int width = 0;                 ///< 列数，单位像素。
     int height = 0;                ///< 行数，单位像素。
