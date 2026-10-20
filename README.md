@@ -4,6 +4,8 @@
 
 **学习入口：[本地课程](lessons/index.html)** · [课程地图](docs/curriculum.md) · [进度](learning-records/progress.md) · [官方资料](RESOURCES.md)
 
+配套阅读：[Qt 与 OpenCV 英文词汇学习手册](docs/qt-opencv-vocabulary.md)，包含分主题词表、API 拆词、报错句式和独立自测。
+
 ## 固定基线
 
 Qt 6.8.3 msvc2022_64 / OpenCV 5.0.0 / C++20 / MSVC v143 14.44.35207 x64 / CMake 3.30.5 / Ninja 1.12.1。
