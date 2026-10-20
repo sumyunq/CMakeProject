@@ -1,0 +1,27 @@
+:root { color-scheme: light; --ink:#182e35; --muted:#52656b; --accent:#176b64; --paper:#fffdf8; --line:#d7e1dd; }
+* { box-sizing:border-box; }
+body { margin:0; background:#edf2ef; color:var(--ink); font:17px/1.85 "Segoe UI","Microsoft YaHei",sans-serif; }
+main { max-width:1060px; margin:36px auto; padding:48px 64px; background:var(--paper); border-top:7px solid var(--accent); box-shadow:0 8px 36px #182e3510; }
+nav { display:flex; gap:20px; flex-wrap:wrap; font-size:14px; margin-bottom:30px; }
+a { color:var(--accent); text-underline-offset:4px; }
+.eyebrow { letter-spacing:2px; text-transform:uppercase; color:var(--accent); font-size:13px; font-weight:700; }
+h1 { font-size:38px; line-height:1.35; letter-spacing:-1px; margin:14px 0; }
+h2 { font-size:25px; margin-top:42px; border-bottom:1px solid var(--line); padding-bottom:10px; }
+h3 { font-size:19px; margin-top:28px; }
+.intro { font-size:20px; color:var(--muted); }
+.note { background:#eaf3ee; border-left:4px solid var(--accent); padding:14px 20px; margin:24px 0; }
+.warning { background:#fbf0dc; border-color:#bb8434; }
+pre { padding:20px; border:1px solid var(--line); overflow:auto; background:#f2f5f2; line-height:1.55; font-size:14px; }
+code { font-family:Consolas,monospace; }
+p code,li code,td code { background:#edf1ec; padding:2px 5px; border-radius:3px; }
+table { border-collapse:collapse; width:100%; font-size:15px; margin:20px 0; }
+th,td { border-bottom:1px solid var(--line); padding:12px; text-align:left; vertical-align:top; }
+th { background:#eaf0e9; }
+details { border:1px solid var(--line); margin:14px 0; padding:14px 18px; }
+summary { cursor:pointer; font-weight:600; }
+footer { margin-top:48px; border-top:1px solid var(--line); padding-top:18px; color:var(--muted); font-size:14px; }
+.grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); }
+.grid span { background:#f5f7f2; padding:14px; text-align:center; }
+textarea { width:100%; min-height:100px; padding:12px; font:inherit; border:1px solid var(--line); background:white; }
+@media(max-width:700px) { main { margin:0; padding:28px 20px; } h1 { font-size:29px; } table { display:block; overflow:auto; } }
+@media print { body { background:white; } main { margin:0; padding:0; box-shadow:none; max-width:none; } nav,textarea { display:none; } details { break-inside:avoid; } }

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>02 · 图像与 Mat 入门</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><main><nav><a href="index.html">学习入口</a><a href="0001-environment.html">上一课：环境</a><a href="../exercises/0002-image-mat/README.md">独立练习</a></nav>
+<div class="eyebrow">Lesson 02 / 看见内存中的图像</div><h1>一张图像，几个对象，一份数据？</h1><p class="intro">目标：区分像素、通道、矩阵头和像素存储，能预测复制与 ROI 的修改结果。这些知识决定以后的视频流水线是否正确。</p>
+<h2>问题：复制后为什么原图也变了？</h2><pre><code>cv::Mat original = cv::Mat::zeros(3, 4, CV_8UC1);
+auto alias = original;
+auto independent = original.clone();
+alias.at&lt;uchar&gt;(0, 1) = 9;
+auto roi = original(cv::Rect(1, 1, 2, 2));
+roi.setTo(7);</code></pre><p>运行前写下 original、alias、independent、roi 的尺寸和最终值；特别注意 <code>at(row,col)</code> 与 <code>Rect(x,y,width,height)</code> 的顺序不同。</p>
+<label for="prediction">你的预测（不自动保存）</label><textarea id="prediction" placeholder="original 第 0 行……；independent……；roi……"></textarea>
+<h2>图像的数值表示</h2><p>二维灰度图可以记作 I(y,x)，彩色图像还要增加通道下标 I(y,x,c)。<code>rows</code> 是高度，<code>cols</code> 是宽度；CV_8UC3 表示每通道 8 位无符号整数、每像素 3 通道，通常用于 BGR，但 Mat 类型本身不保存颜色空间语义。</p>
+<table><tr><th>类型</th><th>每通道</th><th>每像素</th><th>注意</th></tr><tr><td>CV_8UC1</td><td>1 字节</td><td>1 字节</td><td>可表示灰度，也可表示掩码</td></tr><tr><td>CV_8UC3</td><td>1 字节</td><td>3 字节</td><td>BGR/RGB/HSV 语义由流程约定</td></tr><tr><td>CV_16UC1</td><td>2 字节</td><td>2 字节</td><td>可能用于深度/高位深图，不应直接当 8 位显示</td></tr><tr><td>CV_32FC1</td><td>4 字节</td><td>4 字节</td><td>值域由算法决定，不自动等于 0～1</td></tr></table>
+<h3>行步长：地址公式</h3><pre><code>address(y, x, c) = data
+                   + y * step[0]
+                   + x * elemSize()
+                   + c * elemSize1()</code></pre><p>这里讨论二维、通道交错的 Mat。<code>step[0]</code> 的单位是字节，<code>elemSize()</code> 包含一个像素所有通道。仅当连续时，才可以把整块数据当作紧密的一维像素序列。</p>
+<p>例如父图宽 8、CV_8UC3，其行步长为 24 字节。截取宽 3、高 2 的中间 ROI 后，每行有效数据只有 9 字节，但下一行起点仍相距 24 字节。如果按 9 字节跨行，会读到 ROI 右侧的父图像素。</p>
+<h2>Mat 头与数据所有权</h2><p>Mat 对象包含尺寸、类型、步长、数据指针等信息。对正常由 OpenCV 管理的数据做赋值，会共享像素并维护引用计数；<code>clone()</code> 才创建独立副本。Mat 不会在写入时自动为普通浅拷贝执行分离。</p><div class="note warning">外部内存是另一种边界：用外部指针创建 Mat，不会自动接管该缓冲区生命周期。共享引用计数也不代表并发修改像素是安全的。</div>
+<h3>预测结果</h3><details><summary>写好自己的结果后，再展开对照</summary><pre><code>original 与 alias：
+0 9 0 0
+0 7 7 0
+0 7 7 0
+
+independent：3×4，全零
+roi：2×2，全为 7</code></pre><p>alias 写入共享存储；roi 指向同一份父图数据的一个子区域；independent 在修改之前复制，所以仍全零。这个 ROI 的行步长仍为 4 字节，每行有效 2 字节，因此不连续。</p></details>
+<h2>最小实验</h2><pre><code>./scripts/Run.ps1 -Configuration Debug -Program mat_demo
+./scripts/Run.ps1 -Configuration Debug -Program vision_viewer</code></pre><p>控制台显示属性、矩阵和 ROI。Widgets 窗口显示生成的红、绿、蓝色块，元数据来自业务检查结果。留意图像宽高与窗口尺寸不同，窗口布局不会改变源图像矩阵。</p>
+<h3>为什么要复制成独立 QImage？</h3><p>QImage 的外部内存构造并不自动接管 Mat 内存。如果 Mat 被释放，界面随后绘制可能访问失效数据。本工程转换接口返回独立像素所有权，并测试“修改和销毁源 Mat 后仍可显示”。灰度直接按正确步长复制，BGR/BGRA 先按约定转换通道顺序。</p>
+<p>本课显示接口只接受二维 CV_8UC1/3/4。不支持的类型返回明确错误；16 位深度或浮点数据需要后续明确的归一化/显示映射，不静默截断。</p>
+<h2>失败案例</h2><ul><li>把 BGR 当 RGB：红蓝互换。用已知纯色块验证，不凭照片观感猜。</li><li>把 cols 当 rows：出现转置式坐标错误。先用非正方形矩阵实验。</li><li>把 ROI 当连续：首行正常、后续行错位。检查 step 与 isContinuous。</li><li>把浅拷贝当线程快照：后台修改影响界面。必须明确只读共享或独立复制。</li><li>直接读取超出图像范围的坐标：不是边界策略，而是错误访问；先校验范围。</li></ul>
+<h2>自测与纵深问题</h2><details><summary>Mat 类型相同，是否表示同一种颜色空间？</summary><p>不能。CV_8UC3 只描述深度与通道数；BGR、RGB 和 HSV 都可能用这个存储类型，需要额外的语义约定。</p></details><details><summary>ROI 的 total()*elemSize() 能否作为跨行 memcpy 的字节数？</summary><p>对非连续 ROI 不可以直接当作一段紧密区域复制。应按行处理，或使用支持步长的库接口，或 clone 得到连续副本。</p></details><details><summary>引用计数是否解决像素的线程安全？</summary><p>它解决特定所有权管理问题，不替代对共享像素读写的同步。读写并发仍需要约束生命周期、不可变快照或同步。</p></details>
+<h2>独立练习</h2><p>用 4×6 灰度父图创建一个非连续 ROI，分别做浅拷贝和 clone。先画出预测，再运行核验；然后用逐行遍历求 ROI 像素和，并与 OpenCV 的求和结果比较。独立练习的尺寸和值请自行选择，避免照抄本课就误以为掌握。</p><p>提交源码、预测表、实际输出以及一个你主动构造的错误案例。隔天不看教材，重新解释 step 与 clone 的作用。</p>
+<h2>官方依据与源码入口</h2><ul><li><a href="https://github.com/opencv/opencv/blob/5.0.0/modules/core/include/opencv2/core/mat.hpp">Mat 声明、数据访问与内存约定</a></li><li><a href="https://github.com/opencv/opencv/blob/5.0.0/modules/core/src/matrix.cpp">Mat 创建、复制与 ROI 的实现</a></li><li><a href="https://doc.qt.io/qt-6.8/qimage.html">QImage 外部数据和 copy 文档</a></li><li><a href="https://github.com/opencv/opencv/wiki/OpenCV-4-to-5-migration">4 到 5：Mat 维度语义等变化</a></li></ul>
+<footer>本课限定二维图像；0D/1D 张量和更多深度将在后续专题介绍。测试结果见项目验证记录，不代表学习者已验收。</footer></main></body></html>

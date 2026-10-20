@@ -1,0 +1,25 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {"major": 3, "minor": 30, "patch": 5},
+  "configurePresets": [
+    {
+      "name": "base", "hidden": true, "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "$env{CVLAB_QT_ROOT}",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true,
+        "BUILD_TESTING": true
+      }
+    },
+    {"name": "debug", "inherits": "base", "hidden": true,
+      "cacheVariables": {"CMAKE_BUILD_TYPE": "Debug", "OpenCV_DIR": "${sourceDir}/build/deps/install/Debug"}},
+    {"name": "release", "inherits": "base", "hidden": true,
+      "cacheVariables": {"CMAKE_BUILD_TYPE": "Release", "OpenCV_DIR": "${sourceDir}/build/deps/install/Release"}}
+  ],
+  "buildPresets": [
+    {"name": "base-build", "hidden": true, "jobs": 4}
+  ],
+  "testPresets": [
+    {"name": "base-test", "hidden": true, "output": {"outputOnFailure": true}}
+  ]
+}

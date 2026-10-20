@@ -1,0 +1,8 @@
+/3rdparty/
+/build/
+/dist/
+/CMakeUserPresets.json
+/logs/
+/.superpowers/
+__pycache__/
+*.user

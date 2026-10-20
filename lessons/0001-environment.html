@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>01 · 环境与验证</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><main><nav><a href="index.html">学习入口</a><a href="0002-image-mat.html">下一课：图像与 Mat</a><a href="../exercises/0001-environment/README.md">独立练习</a></nav>
+<div class="eyebrow">Lesson 01 / 可复现的第一步</div><h1>程序到底使用了哪一份库？</h1><p class="intro">目标：亲手验证依赖来源，并区分“能编译”“能运行”和“能交付”。你已掌握 Qt 开发，这一课聚焦 OpenCV 带来的新边界。</p>
+<h2>先作预测</h2><p>机器同时装有 Qt 6.8.3 和 6.10.2。构建成功能否证明使用了 6.8.3？把 Release 可执行文件复制到一个空目录，它一定可以运行吗？先写下需要哪些证据。</p>
+<label for="prediction">你的预测（此输入不自动保存，请复制到练习记录）</label><textarea id="prediction" placeholder="我会检查……因为……"></textarea>
+<h2>原理：五个不同的环节</h2><table><tr><th>环节</th><th>输入与输出</th><th>典型错误</th></tr><tr><td>获取源码</td><td>固定标签与提交 → 一份确定的源码</td><td>误用开发分支或 alpha 标签</td></tr><tr><td>CMake 配置</td><td>源码、工具链、包路径 → 构建规则</td><td>找到另一份 OpenCV，或缺少组件</td></tr><tr><td>编译</td><td>.cpp 与头文件 → 目标文件</td><td>头文件找不到、类型/API 不匹配</td></tr><tr><td>链接</td><td>目标文件与导入库 → .exe</td><td>缺失实现、架构或配置不匹配</td></tr><tr><td>加载与运行</td><td>.exe、DLL、Qt 插件 → 进程</td><td>DLL 找不到、平台插件缺失</td></tr></table>
+<p>链接时使用的 <code>.lib</code> 不能替代运行时 <code>.dll</code>。编译时的 <code>CV_VERSION</code> 来自头文件；演示同时打印 <code>cv::getVersionString()</code> 来检查运行库。精确版本查找、编译器校验、双配置测试和干净环境部署共同构成证据。</p>
+<h3>Debug 与 Release</h3><p>两者使用同一算法，但优化、调试信息、断言和运行库配置不同。这里 Debug 使用 <code>/MDd</code>、Release 使用 <code>/MD</code>，OpenCV 与应用分别构建。不要把同名头文件当成二进制可混用的保证，也不要拿 Debug 耗时评价最终性能。</p>
+<h2>实验一：准备并解释环境</h2><p>首次按项目 README 生成本机预设，再从仓库根目录运行。脚本只修改自己的进程环境，不修改全局 PATH。</p>
+<pre><code>./scripts/PrepareDependencies.ps1
+./scripts/Build.ps1 -Configuration Debug
+./scripts/Build.ps1 -Configuration Release
+./scripts/Run.ps1 -Configuration Debug -Program environment_probe</code></pre>
+<p>检查输出中的 Qt 6.8.3、OpenCV 头文件和运行库 5.0.0、C++20、x64、MSVC 及配置名称。基础矩阵加法的检查值应为 3；若不是，先定位构建或数据问题，不继续后续课程。</p>
+<h3>你应该观察的中间结果</h3><ul><li><code>build/deps/install/Debug</code> 和 <code>Release</code> 分开，里面的构建记录包含提交与选项。</li><li>CMake 配置日志显示找到的 Qt/OpenCV；应用诊断输出提供运行时证据。</li><li>测试输出包含通过/失败数量，不能只看进程“没有崩溃”。</li><li>可执行文件旁出现时间命名的日志，Debug 可见函数进入和退出。</li></ul>
+<h2>实验二：验证部署</h2><pre><code>./scripts/Deploy.ps1</code></pre><p>部署脚本复制所需 OpenCV DLL，并用匹配的 windeployqt 准备 Qt 依赖，最后用去掉开发目录的 PATH 启动部署副本进行烟雾测试。该结果证明当前机器的干净进程环境可运行；仍不等同于在另一台未装运行库的机器完整验收。</p>
+<h2>失败案例与排查顺序</h2><table><tr><th>现象</th><th>先检查</th><th>不要这样“修”</th></tr><tr><td>CMake 找不到 OpenCV</td><td>依赖脚本是否成功，配置是否一致</td><td>随便从其他版本复制 DLL</td></tr><tr><td>启动缺 DLL</td><td>部署目录内容与运行时搜索路径</td><td>把开发目录永久加入全局 PATH</td></tr><tr><td>Qt platform plugin 错误</td><td>platforms/qwindows.dll 与匹配的 Qt 依赖</td><td>混放不同 Qt 安装中的插件</td></tr><tr><td>版本校验失败</td><td>本机预设与所选工具链</td><td>删除精确版本约束绕过检查</td></tr></table>
+<h2>自测：先回答，再展开</h2><details><summary>为什么只打印 CV_VERSION 还不够？</summary><p>它反映编译时头文件版本。需要同时确认链接和运行库来源；演示增加运行时版本输出，部署测试进一步验证实际可加载依赖。</p></details><details><summary>为什么两个配置不安装到同一个混合目录？</summary><p>分开能清楚记录每份构建的运行库、组件与 DLL 来源，降低链接或部署误选配置的风险，也便于独立重建。</p></details><details><summary>Qt 负责界面，是否必须让 OpenCV 自己启用 Qt 后端？</summary><p>本项目通过 Mat 到 QImage 转换显示，不依赖 OpenCV HighGUI，因此无需 WITH_QT。两套库在应用中连接即可。</p></details>
+<h2>独立练习与验收</h2><p>完成练习目录中的环境报告。必须附自己的诊断输出，分别说明一个配置、链接和运行时错误。不要故意破坏原安装；故障实验只在临时部署副本进行。</p><p>复盘时应能回答：“这次构建用了哪份头文件？哪份 DLL？凭什么知道？”下一课开始前再凭记忆回答一次。</p>
+<h2>官方依据</h2><ul><li><a href="https://doc.qt.io/qt-6.8/cmake-get-started.html">Qt 6.8 与 CMake</a></li><li><a href="https://cmake.org/cmake/help/v3.30/manual/cmake-presets.7.html">CMake 3.30 预设</a></li><li><a href="https://github.com/opencv/opencv/tree/5.0.0">OpenCV 5.0.0 源码</a></li></ul>
+<footer>课程交付状态与学习状态分开记录。本课无需摄像头、网络素材或 AI 模型。</footer></main></body></html>
