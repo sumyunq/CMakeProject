@@ -8,6 +8,8 @@
 
 Qt 6.8.3 msvc2022_64 / OpenCV 5.0.0 / C++20 / MSVC v143 14.44.35207 x64 / CMake 3.30.5 / Ninja 1.12.1。
 
+日志使用 spdlog 1.17.0（vcpkg port 1），由 vcpkg.json 固定版本与注册表基线。库以静态链接、动态 CRT 构建，匹配现有 Qt/OpenCV 工具集；不额外部署 spdlog DLL。
+
 OpenCV 固定提交 `40738fb16ceddb5fb3fea747585f7ce6abb0605b`，对应正式标签 5.0.0。首批只构建 core、imgproc、imgcodecs；Qt 自己显示图像，不启用 OpenCV HighGUI/Qt 后端。
 
 ## 首次准备
@@ -28,6 +30,10 @@ OpenCV 固定提交 `40738fb16ceddb5fb3fea747585f7ce6abb0605b`，对应正式标
 ```
 
 准备依赖时会验证源码提交、干净状态和版本头。官方源码按首批模块稀疏检出；imgproc 必要依赖 geometry、flann 也会构建。MSVC 下通过上游构建选项启用 _USE_MATH_DEFINES，解决 5.0.0 geometry 的 M_PI 编译问题，未修改第三方源码。后续扩展模块需要显式增加检出目录与 BUILD_LIST，并重新验收。日志在 build/verification；每个外部命令检查退出码，失败停止。
+
+首次准备也会调用本机 Visual Studio 的 vcpkg 安装日志库。已有 OpenCV 时可单独运行 `./scripts/PrepareLoggerDependencies.ps1`；安装、下载与编译产物都位于忽略提交的 build 目录，需 Visual Studio 已安装 vcpkg 组件。
+
+该脚本在 3rdparty 中稀疏获取同一固定 vcpkg baseline，复用已安装的官方工具并校验副本；避免下载完整历史。新版 vcpkg 打包脚本需要较新的 CMake 功能，会优先使用 VS 内置且支持该功能的辅助 CMake，否则使用 vcpkg 官方管理的辅助工具；这些仅用于依赖打包，工程及 IDE 的 CMake 3.30.5 预设不变。脚本退出时恢复调用环境。
 
 ## 运行
 
@@ -61,7 +67,7 @@ Build.ps1 默认运行 CTest（可用 -SkipTests 仅构建，但不能据此声�
 
 先完成 Release 构建。部署脚本创建独立时间戳目录，准备 Qt/OpenCV 运行库，然后以去掉开发路径的 PATH 运行诊断和 Mat 演示，启动并正常关闭窗口。它不替代另一台干净 Windows 机器的安装验收。
 
-日志在各可执行文件旁 logs，异步输出、正常退出排空，保留 7 天；Debug 记录应用函数进入/退出，Release 不生成函数追踪。文件不可写时向标准错误报告；应用启动失败时明确显示错误。Release 日志不记录用户数据或完整业务路径。
+日志在各可执行文件旁 logs，由 spdlog 专属线程池异步输出；8192 容量、单消费者、满队列阻塞不丢弃。正常退出先请求 flush，再等待线程池排空并复核落盘；保留 7 天。Debug 记录应用函数进入/退出，Release 不生成函数追踪。日志级别使用 spdlog 标准名称。文件不可写时向标准错误报告；应用启动失败时明确显示错误。Release 调用方只写脱敏事件，不记录用户数据或完整业务路径。
 
 ## 独立练习
 

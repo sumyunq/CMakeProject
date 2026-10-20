@@ -31,3 +31,4 @@ foreach ($buildConfiguration in $configurations) {
     @{ version='5.0.0'; commit=$sourceCommit; configuration=$buildConfiguration; options=$options; compiler=$env:VCToolsVersion; modules=@('core','imgproc','imgcodecs') } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath "$installPath/cvlab-build.json" -Encoding utf8
     Write-Output "依赖安装完成: $buildConfiguration"
 }
+& "$PSScriptRoot/PrepareLoggerDependencies.ps1"

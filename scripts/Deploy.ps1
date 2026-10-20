@@ -18,6 +18,7 @@ try {
     New-Item -ItemType Directory -Force -Path "$destination/licenses" | Out-Null
     Copy-Item -LiteralPath "$script:RepoRoot/3rdparty/opencv/5.0.0/LICENSE" -Destination "$destination/licenses/OpenCV.txt"
     Copy-Item -LiteralPath "$script:RepoRoot/LICENSE" -Destination "$destination/licenses/LearningProject.txt"
+    Copy-Item -LiteralPath "$script:RepoRoot/build/deps/vcpkg_installed/cvlab-x64-windows-static-md/share/spdlog/copyright" -Destination "$destination/licenses/spdlog.txt" -ErrorAction Stop
     $opencvLicenses = "$script:RepoRoot/build/deps/install/Release/etc/licenses"
     Copy-Item -LiteralPath $opencvLicenses -Destination "$destination/licenses/OpenCV-thirdparty" -Recurse -ErrorAction Stop
     $qtLicenses = Join-Path (Split-Path (Split-Path $script:LocalTools.qtRoot)) 'Licenses'

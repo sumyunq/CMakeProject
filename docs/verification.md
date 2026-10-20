@@ -15,6 +15,15 @@
 - Release 三个程序均在独立部署目录和仅系统 PATH 下运行；窗口正常创建关闭。不是另一台全新机器验收。
 - 部署脚本结束后恢复调用进程 PATH 与 Qt 环境变量，已核对部署前后 PATH 相等。
 
+## spdlog 迁移追加验收
+- 后端固定为 spdlog 1.17.0#1，通过固定 vcpkg baseline 与项目 triplet 构建静态库、动态 CRT；实际编译器仍为 14.44.35207。
+- 独立线程池容量 8192、单消费者、满队列阻塞。停止时请求 flush，销毁线程池等待排空，再同步复核 sink；不使用全局 shutdown。
+- Debug/Release 各 6/6 组 CTest 通过；日志专项各 9 条记录通过（含初始化/清理），覆盖 12000 条并发消息、重启排空隔离、中文目录与字面消息、未启动错误、保留期及 Release 过滤。
+- 静态链接后的 Release 干净 PATH 部署复验通过，许可证随部署保存；无需 spdlog DLL。
+- 依赖准备不再拉取 vcpkg 完整历史，而是稀疏获取同一固定 baseline；复用官方已安装工具，副本与辅助工具都在忽略提交的目录。
+- 新版 vcpkg 的内部 SPDX 打包脚本需要 STRING_ENCODE，内部使用 VS 已有且具备此能力的 CMake；项目和 IDE 预设仍使用 3.30.5。未手工修改第三方源码，包含官方 vcpkg port 1 自带补丁。
+- 独立只读审查未发现阻塞问题；目前没有直接注入磁盘满或 flush 失败的测试，不将目录错误测试等同于覆盖所有磁盘故障。
+
 ## 可复现命令
 ```powershell
 ./scripts/PrepareDependencies.ps1

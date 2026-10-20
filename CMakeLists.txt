@@ -23,6 +23,9 @@ endif()
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 find_package(Qt6 6.8.3 EXACT REQUIRED COMPONENTS Core Gui Widgets Test)
 find_package(OpenCV 5.0.0 EXACT REQUIRED COMPONENTS core imgproc imgcodecs)
+find_package(spdlog 1.17.0 EXACT CONFIG REQUIRED
+    PATHS "${PROJECT_SOURCE_DIR}/build/deps/vcpkg_installed/cvlab-x64-windows-static-md/share/spdlog"
+    NO_DEFAULT_PATH)
 include(CTest)
 
 add_library(project_options INTERFACE)
@@ -32,7 +35,7 @@ target_compile_definitions(project_options INTERFACE NOMINMAX WIN32_LEAN_AND_MEA
 target_include_directories(project_options INTERFACE "${PROJECT_SOURCE_DIR}/src")
 
 add_library(core STATIC src/core/diagnostics/Logger.h src/core/diagnostics/Logger.cpp)
-target_link_libraries(core PUBLIC project_options)
+target_link_libraries(core PUBLIC project_options PRIVATE spdlog::spdlog)
 
 add_library(business STATIC src/business/models/ImageProperties.h src/business/services/ImageInspection.h src/business/services/ImageInspection.cpp)
 target_link_libraries(business PUBLIC core opencv_core)
