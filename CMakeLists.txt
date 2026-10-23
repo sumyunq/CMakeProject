@@ -57,7 +57,29 @@ set_target_properties(vision_viewer PROPERTIES AUTORCC ON)
 target_link_libraries(vision_viewer PRIVATE application_runtime presentation)
 install(TARGETS environment_probe mat_demo vision_viewer RUNTIME DESTINATION .)
 
+# Offline course experiments share the fixed foundation dependencies.
+add_executable(foundation_labs src/app/FoundationLabs.cpp)
+add_executable(advanced_labs src/app/AdvancedLabs.cpp)
+add_executable(engineering_labs src/app/EngineeringLabs.cpp)
+foreach(lab_target IN ITEMS foundation_labs advanced_labs engineering_labs)
+    target_link_libraries(${lab_target} PRIVATE application_runtime business opencv_imgproc opencv_imgcodecs opencv_geometry)
+endforeach()
+install(TARGETS foundation_labs advanced_labs engineering_labs RUNTIME DESTINATION .)
+
 if(BUILD_TESTING)
+    foreach(lesson RANGE 3 30)
+        if(lesson LESS 14)
+            set(lab_target foundation_labs)
+        elseif(lesson LESS 24)
+            set(lab_target advanced_labs)
+        else()
+            set(lab_target engineering_labs)
+        endif()
+        add_test(NAME course_${lesson} COMMAND ${lab_target} ${lesson} "${CMAKE_BINARY_DIR}/course-output/${lesson}")
+        set_tests_properties(course_${lesson} PROPERTIES
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>;PATH=path_list_prepend:$<TARGET_FILE_DIR:opencv_core>"
+            TIMEOUT 45)
+    endforeach()
     add_executable(logger_tests tests/unit/TestLogger.cpp)
     set_target_properties(logger_tests PROPERTIES AUTOMOC ON)
     target_link_libraries(logger_tests PRIVATE core Qt6::Test)
@@ -85,5 +107,24 @@ if(BUILD_TESTING)
     set_tests_properties(environment_smoke mat_smoke PROPERTIES
         ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>;PATH=path_list_prepend:$<TARGET_FILE_DIR:opencv_core>" TIMEOUT 30)
     find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
+    set(reference_answers
+        solutions/0002-image-mat/README.md
+        solutions/0014-calibration/README.md solutions/0015-stereo-pose/README.md
+        solutions/0016-video-time/README.md solutions/0017-tracking/README.md
+        solutions/0018-optics-lighting/README.md solutions/0019-subpixel/README.md
+        solutions/0020-defects/README.md solutions/0021-classification/README.md
+        solutions/0022-dnn-contract/README.md solutions/0023-detection-segmentation/README.md
+        solutions/0024-performance-memory/README.md solutions/0027-source-comparison/README.md)
+    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/generated/ReferenceAnswers.cpp"
+        COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/scripts/ExtractReferenceChecks.py" "${PROJECT_SOURCE_DIR}" "${CMAKE_BINARY_DIR}/generated/ReferenceAnswers.cpp"
+        DEPENDS scripts/ExtractReferenceChecks.py docs/course-catalog.json ${reference_answers}
+        VERBATIM)
+    add_executable(reference_answer_tests EXCLUDE_FROM_ALL "${CMAKE_BINARY_DIR}/generated/ReferenceAnswers.cpp")
+    target_link_libraries(reference_answer_tests PRIVATE business opencv_imgproc)
+    foreach(lab_target IN ITEMS foundation_labs advanced_labs engineering_labs)
+        add_test(NAME ${lab_target}_reject_invalid COMMAND ${lab_target} 99 "${CMAKE_BINARY_DIR}/invalid-course-output")
+        set_tests_properties(${lab_target}_reject_invalid PROPERTIES WILL_FAIL TRUE TIMEOUT 10
+            ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>;PATH=path_list_prepend:$<TARGET_FILE_DIR:opencv_core>")
+    endforeach()
     add_test(NAME lesson_documents COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/scripts/VerifyLessons.py")
 endif()

@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>09 · 轮廓、连通域与 Hough</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><main><nav><a href="index.html">课程入口</a><a href="../exercises/0009-shape-hough/README.md">独立练习</a><a href="../solutions/0009-shape-hough/README.md">参考答案</a></nav>
+<p class="eyebrow">基础算法 / 第 09 课 / Qt 6.8.3 · OpenCV 5 · C++20</p><h1>轮廓、连通域与 Hough</h1><p class="intro">像素面积和轮廓面积为什么不同？</p>
+<h2>问题与直觉</h2><p>连通域回答哪些前景像素属于同一个对象，轮廓回答对象的边界走向。四连通与八连通对斜接触有不同定义。轮廓检索模式决定是否保留孔洞及层级；仅取外轮廓会丢失内部孔。处理完二值化后应先说明你要像素数量、边界多边形面积还是物理面积，这决定正确的接口和标定方式。</p><h2>数学与手算</h2><p>宽四十高三十的实心矩形有 40×30=1200 个前景像素；外轮廓经过边缘像素中心，四角坐标跨度是三十九和二十九，面积为 39×29=1131。这个差值不是 OpenCV 算错。连通域返回值包含背景，因此单矩形返回二；全黑图仍有背景标签零，返回一。</p>
+<h2>完整最小实验</h2><pre><code>./scripts/RunLab.ps1 -Lesson 09
+# 或在构建输出目录直接调用，输出目录可自行指定
+foundation_labs 09 build/lab-output/09</code></pre><p>完整可编译入口在 <a href="../src/app/FoundationLabs.cpp">FoundationLabs.cpp</a> 的 case09，共享 main 负责日志、参数检查、目录创建和异常转非零退出码。该实验自行构造输入，不需要下载图片、摄像头或模型。先查看该函数及其调用的 save、require，再运行；不要只抄一个脱离初始化和错误处理的 API 片段。</p>
+<p>case09 调用 connectedComponentsWithStats、findContours、contourArea、HoughLinesP。component.png 是面积对照，line.png 在 y=40 从 x=10 到 85 画直线。Hough 把候选边缘投票到参数空间，直线常写为 ρ=x cosθ+y sinθ；概率版本返回有限线段端点。检查至少一条线段，不依赖其输出排序。</p><p>预测后运行并核对标准输出的数值与中间 PNG。程序断言失败、目录不可写或图像编码失败均返回非零；尝试把课号写成 99，确认入口拒绝无效范围。输出目录必须可创建且可写，不能把已有普通文件当目录。最小实验验证了受控输入的行为，不等于已经验证所有真实业务图像。</p>
+<h2>失败案例与排错</h2><p>失败实验：将面积阈值一千一百五十用于轮廓面积会误删该矩形，而用于像素面积会保留。Hough 的阈值过低会在噪声中检出很多线；最大间隙过大可能连接不同零件的共线边缘。单位像素的长度尚不是毫米。</p><p>排错顺序是先确认输入尺寸、类型、通道语义和取值范围，再检查中间矩阵，最后调整算法参数。把每一步输出与未处理原图并排比较，记录参数及观察结论。显示器自动缩放、JPEG 压缩、归一化和伪彩都会改变观感；判断像素值应读取矩阵，不能从截图颜色反推数值。</p>
+<h2>独立练习</h2><p>生成两个斜角接触的小方块，分别做四连通和八连通，并生成有孔矩形比较 RETR_EXTERNAL 与 RETR_TREE。为长直线加入缺口，研究 maxLineGap。</p><h2>验收标准</h2><p>斜角接触在四连通为两个前景域，在八连通为一个；有孔图必须记录层级关系，面积统计时明确是否扣孔，不能直接把所有绝对轮廓面积相加。</p><p>提交输入生成规则、运行命令、至少一个数值表、全部关键中间结果和失败案例。评分：数值正确四十分，边界与错误处理二十分，解释参数和失败原因二十分，可复现记录二十分。八十分且所有关键数值正确算完成本课；能够口头解释为什么成立，比把测试标绿更重要。</p>
+<h2>自测：先回答再展开</h2><details><summary>返回二是否有两个零件？</summary><p>不是，包含一个背景和一个前景。</p></details><details><summary>1131 和 1200 哪个正确？</summary><p>分别是像素中心多边形面积和前景像素数。</p></details><details><summary>Hough 检测线段需要灰度填充区吗？</summary><p>通常输入边缘或稀疏二值点，填充区会产生大量无意义投票。</p></details><h2>术语</h2><p>connected component 连通域；contour 轮廓；hierarchy 层级；Hough 霍夫变换</p>
+<h2>官方资料与版本核对</h2><p><a href="https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html">OpenCV 官方 API / 教程</a>用于进一步核对概念与参数。在线 4.x 页面为补充阅读，不是本工程切换版本的依据；可执行行为以固定 5.0.0 头文件、实现及本课数值实验为准。遇到签名差异先搜索本地源码，记录差异再改调用。<a href="https://github.com/opencv/opencv/tree/5.0.0">固定版本官方源码</a>是版本核对入口。</p>
+<nav aria-label="逐课导航"><a href="0008-gradients-canny.html">上一课</a><a href="../docs/self-study-guide.md">自学与验收指南</a><a href="../docs/qt-opencv-vocabulary.md">英文词汇</a><a href="0010-watershed.html">下一课</a></nav></main></body></html>

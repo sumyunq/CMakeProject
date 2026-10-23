@@ -1,15 +1,20 @@
 #requires -Version 7.0
-param([ValidateSet('Debug','Release','Both')][string]$Configuration = 'Both')
+param([ValidateSet('Debug','Release','Both')][string]$Configuration = 'Both',
+    [ValidateSet('Foundation','Full')][string]$Profile = 'Foundation',
+    [ValidateRange(0,16)][int]$Parallel = 0)
 . "$PSScriptRoot/Common.ps1"
 Import-CompilerEnvironment
 Set-Location -LiteralPath $script:RepoRoot
 $sourcePath = Join-Path $script:RepoRoot '3rdparty/opencv/5.0.0'
+$moduleNames = if ($Profile -eq 'Full') { @('core','imgproc','imgcodecs','features','calib','stereo','objdetect','video','videoio','dnn') } else { @('core','imgproc','imgcodecs') }
+$jobs = if ($Parallel -gt 0) { $Parallel } elseif ($Profile -eq 'Full') { 1 } else { 4 }
+$sparsePaths = @('cmake','3rdparty','include','doc/CMakeLists.txt','docs_sphinx/CMakeLists.txt','modules/flann','modules/geometry') + @($moduleNames | ForEach-Object { 'modules/' + $_ })
 $expectedCommit = '40738fb16ceddb5fb3fea747585f7ce6abb0605b'
 if (-not (Test-Path -LiteralPath "$sourcePath/.git")) {
     New-Item -ItemType Directory -Force -Path (Split-Path $sourcePath) | Out-Null
     Invoke-LoggedCommand 'git' @('-c','http.lowSpeedLimit=1024','-c','http.lowSpeedTime=60','clone','--filter=blob:none','--sparse','--depth','1','--branch','5.0.0','--single-branch','https://github.com/opencv/opencv.git',$sourcePath) "$script:RepoRoot/build/verification/opencv-download.log"
 }
-Invoke-LoggedCommand 'git' @('-C',$sourcePath,'sparse-checkout','set','--skip-checks','cmake','3rdparty','include','doc/CMakeLists.txt','docs_sphinx/CMakeLists.txt','modules/core','modules/flann','modules/geometry','modules/imgproc','modules/imgcodecs') "$script:RepoRoot/build/verification/opencv-checkout.log"
+Invoke-LoggedCommand 'git' (@('-C',$sourcePath,'sparse-checkout','set','--skip-checks') + $sparsePaths) "$script:RepoRoot/build/verification/opencv-checkout.log"
 $sourceCommit = & git -C $sourcePath rev-parse HEAD
 if ($LASTEXITCODE -ne 0 -or $sourceCommit -ne $expectedCommit) { throw "OpenCV 源码提交不匹配: $sourceCommit" }
 $sourceChanges = & git -C $sourcePath status --porcelain
@@ -20,15 +25,22 @@ foreach ($definition in @('CV_VERSION_MAJOR\s+5','CV_VERSION_MINOR\s+0','CV_VERS
 }
 $configurations = if ($Configuration -eq 'Both') { @('Debug','Release') } else { @($Configuration) }
 foreach ($buildConfiguration in $configurations) {
-    $buildPath = "$script:RepoRoot/build/deps/opencv-$buildConfiguration"
-    $installPath = "$script:RepoRoot/build/deps/install/$buildConfiguration"
-    $options = @('-S',$sourcePath,'-B',$buildPath,'-G','Ninja',"-DCMAKE_MAKE_PROGRAM=$($script:LocalTools.ninja)","-DCMAKE_BUILD_TYPE=$buildConfiguration",'-DCMAKE_CXX_STANDARD=20','-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>DLL',"-DCMAKE_INSTALL_PREFIX=$installPath",'-DBUILD_LIST=core,imgproc,imgcodecs','-DBUILD_DOCS=OFF','-DBUILD_SHARED_LIBS=ON','-DBUILD_TESTS=OFF','-DBUILD_PERF_TESTS=OFF','-DBUILD_EXAMPLES=OFF','-DBUILD_opencv_apps=OFF','-DBUILD_opencv_python2=OFF','-DBUILD_opencv_python3=OFF','-DWITH_QT=OFF','-DWITH_CUDA=OFF','-DWITH_OPENCL=OFF','-DWITH_IPP=OFF','-DWITH_FFMPEG=OFF','-DWITH_VTK=OFF','-DWITH_OPENEXR=OFF','-DWITH_JASPER=OFF','-DWITH_WEBP=OFF','-DWITH_TIFF=OFF','-DWITH_JPEG=ON','-DWITH_PNG=ON','-DBUILD_JPEG=ON','-DBUILD_PNG=ON','-DBUILD_ZLIB=ON')
+    $profilePrefix = if ($Profile -eq 'Full') { 'full-' } else { '' }
+    $buildPath = "$script:RepoRoot/build/deps/${profilePrefix}opencv-$buildConfiguration"
+    $installPath = "$script:RepoRoot/build/deps/${profilePrefix}install/$buildConfiguration"
+    $options = @('-S',$sourcePath,'-B',$buildPath,'-G','Ninja',"-DCMAKE_MAKE_PROGRAM=$($script:LocalTools.ninja)","-DCMAKE_BUILD_TYPE=$buildConfiguration",'-DCMAKE_CXX_STANDARD=20','-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>DLL',"-DCMAKE_INSTALL_PREFIX=$installPath",("-DBUILD_LIST=" + ($moduleNames -join ',')),'-DBUILD_DOCS=OFF','-DBUILD_SHARED_LIBS=ON','-DBUILD_TESTS=OFF','-DBUILD_PERF_TESTS=OFF','-DBUILD_EXAMPLES=OFF','-DBUILD_opencv_apps=OFF','-DBUILD_opencv_python2=OFF','-DBUILD_opencv_python3=OFF','-DWITH_QT=OFF','-DWITH_CUDA=OFF','-DWITH_OPENCL=OFF','-DWITH_IPP=OFF','-DWITH_FFMPEG=OFF','-DWITH_VTK=OFF','-DWITH_OPENEXR=OFF','-DWITH_JASPER=OFF','-DWITH_WEBP=OFF','-DWITH_TIFF=OFF','-DWITH_JPEG=ON','-DWITH_PNG=ON','-DBUILD_JPEG=ON','-DBUILD_PNG=ON','-DBUILD_ZLIB=ON')
     # OpenCV 5.0.0 geometry uses M_PI; MSVC requires this opt-in before math headers.
-    $options += '-DOPENCV_EXTRA_CXX_FLAGS=/D_USE_MATH_DEFINES'
+    $options += @('-DOPENCV_EXTRA_CXX_FLAGS=/D_USE_MATH_DEFINES','-DWITH_ONNXRUNTIME=OFF','-DWITH_OPENVINO=OFF','-DBUILD_PROTOBUF=ON','-DOPENCV_DNN_CUDA=OFF')
+    if ($Profile -eq 'Full') {
+        # The vendored MLAS uses GNU .S kernels, not MSVC MASM. Its documented
+        # no-ASM branch falls back to DNN's built-in SGEMM. Declare x64 so the
+        # upstream guard recognizes that ASM would be required before disabling it.
+        $options += "-DCMAKE_PROJECT_INCLUDE=$script:RepoRoot/cmake/FullDependencies.cmake"
+    }
     Invoke-LoggedCommand $script:LocalTools.cmake $options "$script:RepoRoot/build/verification/opencv-$buildConfiguration-configure.log"
-    Invoke-LoggedCommand $script:LocalTools.cmake @('--build',$buildPath,'--parallel','4') "$script:RepoRoot/build/verification/opencv-$buildConfiguration-build.log"
+    Invoke-LoggedCommand $script:LocalTools.cmake @('--build',$buildPath,'--parallel',"$jobs") "$script:RepoRoot/build/verification/opencv-$buildConfiguration-build.log"
     Invoke-LoggedCommand $script:LocalTools.cmake @('--install',$buildPath) "$script:RepoRoot/build/verification/opencv-$buildConfiguration-install.log"
-    @{ version='5.0.0'; commit=$sourceCommit; configuration=$buildConfiguration; options=$options; compiler=$env:VCToolsVersion; modules=@('core','imgproc','imgcodecs') } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath "$installPath/cvlab-build.json" -Encoding utf8
+    @{ version='5.0.0'; commit=$sourceCommit; configuration=$buildConfiguration; options=$options; compiler=$env:VCToolsVersion; modules=$moduleNames; profile=$Profile } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath "$installPath/cvlab-build.json" -Encoding utf8
     Write-Output "依赖安装完成: $buildConfiguration"
 }
 & "$PSScriptRoot/PrepareLoggerDependencies.ps1"

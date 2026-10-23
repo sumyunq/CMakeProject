@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>12 · 特征、描述与匹配</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><main><nav><a href="index.html">课程入口</a><a href="../exercises/0012-features-matching/README.md">独立练习</a><a href="../solutions/0012-features-matching/README.md">参考答案</a></nav>
+<p class="eyebrow">基础算法 / 第 12 课 / Qt 6.8.3 · OpenCV 5 · C++20</p><h1>特征、描述与匹配</h1><p class="intro">两幅图里怎样找到同一个位置？</p>
+<h2>问题与直觉</h2><p>特征定位与描述是两个问题：检测器选有辨识度的位置，描述子把周边结构编码，匹配器根据距离提出候选对应。角点通常比平坦区域稳定，单一直边则沿边方向定位不确定。真正的 ORB 和 SIFT 还处理方向及尺度等变化，本课先用固定像素块学习描述与相似度，不能把模板匹配称作完整特征匹配系统。</p><h2>数学与手算</h2><p>归一化互相关 NCC 对每个块减均值，再计算点积除以两者范数。块 [1,2,3] 与 [11,12,13] 去均值后相同，相关系数为一，因此可抵抗不发生饱和的亮度偏移。平坦块去均值后全零，分母为零，没有辨识度；应该先检查标准差并拒绝，而不是相信某个库实现给出的特殊分值。</p>
+<h2>完整最小实验</h2><pre><code>./scripts/RunLab.ps1 -Lesson 12
+# 或在构建输出目录直接调用，输出目录可自行指定
+foundation_labs 12 build/lab-output/12</code></pre><p>完整可编译入口在 <a href="../src/app/FoundationLabs.cpp">FoundationLabs.cpp</a> 的 case12，共享 main 负责日志、参数检查、目录创建和异常转非零退出码。该实验自行构造输入，不需要下载图片、摄像头或模型。先查看该函数及其调用的 save、require，再运行；不要只抄一个脱离初始化和错误处理的 API 片段。</p>
+<p>case12 用固定随机种子建立 60×80 场景，从 (23,17) 截取九乘九描述块，matchTemplate 的 TM_CCOEFF_NORMED 得分峰应位于该位置。scene.png、patch.png、scores.png 分别显示场景、模板和响应；响应尺寸为 72×52，坐标表示模板左上角。全图增加二十后峰仍应一致。</p><p>预测后运行并核对标准输出的数值与中间 PNG。程序断言失败、目录不可写或图像编码失败均返回非零；尝试把课号写成 99，确认入口拒绝无效范围。输出目录必须可创建且可写，不能把已有普通文件当目录。最小实验验证了受控输入的行为，不等于已经验证所有真实业务图像。</p>
+<h2>失败案例与排错</h2><p>失败实验：重复棋盘产生很多同等好的峰；旋转九十度或改变尺度会破坏固定块对应。最大得分高不意味着唯一，应比较次佳峰并屏蔽最佳峰邻域，避免把同一峰周围像素当独立竞争者。匹配还应经过几何一致性验证。</p><p>排错顺序是先确认输入尺寸、类型、通道语义和取值范围，再检查中间矩阵，最后调整算法参数。把每一步输出与未处理原图并排比较，记录参数及观察结论。显示器自动缩放、JPEG 压缩、归一化和伪彩都会改变观感；判断像素值应读取矩阵，不能从截图颜色反推数值。</p><h2>真实特征 API 的版本边界</h2><p>官方 4.x 示例的 features2d 头文件与旧模块布局不能直接认定适用于本工程 OpenCV 5。当前离线构建只保证 core、imgproc、imgcodecs、geometry，所以上述实验不引入额外依赖。扩展 ORB/SIFT 时，本地固定源码已核对：modules/features/include/opencv2/features.hpp 第 352、444、1212 行分别声明 SIFT、ORB、BFMatcher，CMake 模块为 features，头文件为 opencv2/features.hpp。补建 opencv_features 及依赖后再写 detectAndCompute、knnMatch 和几何筛选。不要直接复制旧的 find_package 组件列表或悄悄更换到 4.x。浮点描述子常用 L2，二进制描述子常用 Hamming；两种描述不能随意混用距离。</p><pre><code>// 可选扩展：必须先构建 features 模块；本课默认可执行程序不使用它
+#include &lt;opencv2/features.hpp&gt;
+std::vector&lt;cv::KeyPoint&gt; keypoints;
+cv::Mat descriptors;
+auto orb = cv::ORB::create();
+orb-&gt;detectAndCompute(image, cv::noArray(), keypoints, descriptors);
+// 无关键点时 descriptors 可能为空，应先检查再匹配。</code></pre><p>不要把描述子行数直接当成功匹配数，几何验证仍然必需。</p>
+<h2>独立练习</h2><p>独立写去均值 NCC，在 [1,2,3] 和 [11,12,13]、反序 [3,2,1]、常量 [5,5,5] 上测试；再将场景旋转并记录固定块方法的失败。</p><h2>验收标准</h2><p>前两个块相关为一，反序为负一，常量必须报告不可判定；对精确裁剪的非平坦块定位误差为零。提交次佳峰排除策略及理由。</p><p>提交输入生成规则、运行命令、至少一个数值表、全部关键中间结果和失败案例。评分：数值正确四十分，边界与错误处理二十分，解释参数和失败原因二十分，可复现记录二十分。八十分且所有关键数值正确算完成本课；能够口头解释为什么成立，比把测试标绿更重要。</p>
+<h2>自测：先回答再展开</h2><details><summary>NCC 为一表示唯一匹配吗？</summary><p>不表示，重复纹理可能处处相同。</p></details><details><summary>常量块为何拒绝？</summary><p>零方差导致归一化分母为零，也没有辨识信息。</p></details><details><summary>ORB 描述子应使用什么距离？</summary><p>常规二进制 ORB 用 Hamming，WTA_K 为三或四时按文档使用 Hamming2。</p></details><h2>术语</h2><p>keypoint 关键点；descriptor 描述子；NCC 归一化互相关；ambiguity 歧义</p>
+<h2>官方资料与版本核对</h2><p><a href="https://docs.opencv.org/4.x/dc/dc3/tutorial_py_matcher.html">OpenCV 官方 API / 教程</a>用于进一步核对概念与参数。在线 4.x 页面为补充阅读，不是本工程切换版本的依据；可执行行为以固定 5.0.0 头文件、实现及本课数值实验为准。遇到签名差异先搜索本地源码，记录差异再改调用。<a href="https://github.com/opencv/opencv/tree/5.0.0">固定版本官方源码</a>是版本核对入口。</p>
+<nav aria-label="逐课导航"><a href="0011-transforms.html">上一课</a><a href="../docs/self-study-guide.md">自学与验收指南</a><a href="../docs/qt-opencv-vocabulary.md">英文词汇</a><a href="0013-ransac-stitching.html">下一课</a></nav></main></body></html>

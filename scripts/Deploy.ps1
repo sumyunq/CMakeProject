@@ -34,6 +34,10 @@ try {
     }
     Invoke-LoggedCommand "$destination/environment_probe.exe" @() "$script:RepoRoot/build/verification/deployed-probe.log"
     Invoke-LoggedCommand "$destination/mat_demo.exe" @() "$script:RepoRoot/build/verification/deployed-mat.log"
+    foreach ($lesson in 3..30) {
+        $program = if ($lesson -le 13) { 'foundation_labs' } elseif ($lesson -le 23) { 'advanced_labs' } else { 'engineering_labs' }
+        Invoke-LoggedCommand "$destination/$program.exe" @($lesson.ToString('00'),"$destination/course-output/$lesson") "$script:RepoRoot/build/verification/deployed-course-$lesson.log"
+    }
     # This is the delivered interactive GUI, not a background helper; verify a real window.
     $viewer = Start-Process -FilePath "$destination/vision_viewer.exe" -WorkingDirectory $destination -WindowStyle Normal -PassThru
     try {

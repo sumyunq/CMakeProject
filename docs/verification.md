@@ -1,5 +1,49 @@
 # 首批验收与自检
 
+## 完整课程交付验收 2026-10-23
+
+以下为本次完整课程追加验收；后面的2026-10-20记录保留为历史。
+
+| 范围 | 实测结果与证据 |
+|---|---|
+| 内容 | 01～30共30课、30份练习、30份独立参考答案；课程目录按清单精确匹配，所有页面至少3项折叠自测 |
+| 默认Debug/Release | 各37/37 CTest通过：28课程实验、3错误课号、原6项基础验证；6公开头文件独立编译仍通过 |
+| 答案代码 | CheckReferenceAnswers.ps1两种配置通过；实际从Markdown提取13份含C++答案文档，编译所有片段，验证数值及零视差、无效时间、饱和、平峰、空输入、多维输入、计数大值等边界。目标EXCLUDE_FROM_ALL，默认演示不构建答案 |
+| 原生Release | Full源码安装完成，5/5通过：ORB匹配、PnP重投影、本地MJPEG编码解码、LK平移、130字节ONNX真实CPU ReLU推理 |
+| Qt参考窗口 | 基础工作台Release严格编译，offscreen下参数信号→参数模型→掩模/图像显示自检通过；不是完整异步工作台交互验收 |
+| 部署 | Release部署副本仅系统PATH，诊断、Mat、28课程实验通过，原验证窗口正常创建关闭 |
+| 文档 | HTML结构、全部本地资源/导航、30对练习答案存在性、Markdown本地链接检查通过；Python编译与PowerShell语法检查通过 |
+
+原始日志在忽略提交的build/verification：full-course-debug.log、full-course-release.log、answers-local-*-tests.log、native-tests.log、workbench-tests.log、full-course-deployment.log。默认实验输出、模型、视频及依赖都在忽略提交的build/dist中。
+
+### 本次修复与复核
+
+- 代码迁移时实际发现几何API移到geometry、Mat逗号初始化弃用，已按5.0.0实际声明修复并通过严格编译；没有回退到4.x。
+- 固定版本MLAS在处理器名称为空时错误启用并缺少汇编符号。项目自己的CMAKE_PROJECT_INCLUDE钩子在确认MSVC x64后声明AMD64，禁用不兼容GNU ASM，走上游内置SGEMM回退；未手改第三方源码。
+- 完整模块链接遇到C1060/LNK1102内存不足，Full默认串行续建后成功；可显式指定-Parallel，不关闭用户进程或修改系统设置。
+- 独立只读审查发现的PowerShell启动名、常量伪边界检查已修复；改为真正调用拒绝逻辑并验证留出预测。复审无阻塞发现；进阶课自测已改为主题问题。
+- 第一方源码无裸new/delete、旧式SIGNAL/SLOT、头文件命名空间污染；新增文件全部显式进入对应CMake。新增命名函数有实现前brief，参数/模型/所有权沿用项目规范。
+- 未找到wbliu-code-check工作流，按AGENTS规范自检并作独立审查；没有运行qt-cpp-review。本批外部K03扫描脚本路径不可用，不把2026-10-20的M1～M5零缺口冒充本批扫描结果。
+
+### 可复现命令与边界
+
+```powershell
+./scripts/Build.ps1 -Configuration Debug
+./scripts/Build.ps1 -Configuration Release
+./scripts/CheckReferenceAnswers.ps1 -Configuration Debug
+./scripts/CheckReferenceAnswers.ps1 -Configuration Release
+./scripts/RunLab.ps1 -Lesson 03
+./scripts/RunLab.ps1 -Lesson 30 -Configuration Release
+./scripts/PrepareDependencies.ps1 -Profile Full -Configuration Release
+./scripts/BuildNativeLabs.ps1 -Configuration Release
+./scripts/BuildWorkbenchReference.ps1
+./scripts/Deploy.ps1
+```
+
+所有教材和离线输入均可独立使用，不等待会话解锁。学习者记录仍为“未开始”，可按自学指南自行验收。
+
+完整模块只实测Release；真实相机、第三方检测/分割模型、GPU、新机器部署、完整异步Qt工作台没有被本批实验验证。对应课提供准备、实现顺序和验收标准；离线或极小ONNX通过不表示这些实物项目已经完成。
+
 日期：2026-10-20；环境：Windows 11 x64。本机安装路径仅在忽略提交的用户预设与构建日志中。
 
 ## 结果

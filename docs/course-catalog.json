@@ -1,0 +1,242 @@
+[
+  {
+    "id": 1,
+    "title": "01 · 环境与验证",
+    "file": "0001-environment.html",
+    "exercise": "exercises/0001-environment/README.md",
+    "solution": "solutions/0001-environment/README.md",
+    "target": "environment_probe"
+  },
+  {
+    "id": 2,
+    "title": "02 · 图像与 Mat 入门",
+    "file": "0002-image-mat.html",
+    "exercise": "exercises/0002-image-mat/README.md",
+    "solution": "solutions/0002-image-mat/README.md",
+    "target": "mat_demo"
+  },
+  {
+    "id": 3,
+    "title": "03 · 像素遍历与颜色空间",
+    "file": "0003-pixels-color.html",
+    "exercise": "exercises/0003-pixels-color/README.md",
+    "solution": "solutions/0003-pixels-color/README.md",
+    "target": "foundation_labs"
+  },
+  {
+    "id": 4,
+    "title": "04 · 图像算术与直方图",
+    "file": "0004-arithmetic-histogram.html",
+    "exercise": "exercises/0004-arithmetic-histogram/README.md",
+    "solution": "solutions/0004-arithmetic-histogram/README.md",
+    "target": "foundation_labs"
+  },
+  {
+    "id": 5,
+    "title": "05 · 阈值分割与光照",
+    "file": "0005-threshold.html",
+    "exercise": "exercises/0005-threshold/README.md",
+    "solution": "solutions/0005-threshold/README.md",
+    "target": "foundation_labs"
+  },
+  {
+    "id": 6,
+    "title": "06 · 卷积、滤波与边界",
+    "file": "0006-filtering.html",
+    "exercise": "exercises/0006-filtering/README.md",
+    "solution": "solutions/0006-filtering/README.md",
+    "target": "foundation_labs"
+  },
+  {
+    "id": 7,
+    "title": "07 · 形态学与结构元素",
+    "file": "0007-morphology.html",
+    "exercise": "exercises/0007-morphology/README.md",
+    "solution": "solutions/0007-morphology/README.md",
+    "target": "foundation_labs"
+  },
+  {
+    "id": 8,
+    "title": "08 · 梯度、Sobel 与 Canny",
+    "file": "0008-gradients-canny.html",
+    "exercise": "exercises/0008-gradients-canny/README.md",
+    "solution": "solutions/0008-gradients-canny/README.md",
+    "target": "foundation_labs"
+  },
+  {
+    "id": 9,
+    "title": "09 · 轮廓、连通域与 Hough",
+    "file": "0009-shape-hough.html",
+    "exercise": "exercises/0009-shape-hough/README.md",
+    "solution": "solutions/0009-shape-hough/README.md",
+    "target": "foundation_labs"
+  },
+  {
+    "id": 10,
+    "title": "10 · 距离变换与分水岭",
+    "file": "0010-watershed.html",
+    "exercise": "exercises/0010-watershed/README.md",
+    "solution": "solutions/0010-watershed/README.md",
+    "target": "foundation_labs"
+  },
+  {
+    "id": 11,
+    "title": "11 · 仿射、透视与插值",
+    "file": "0011-transforms.html",
+    "exercise": "exercises/0011-transforms/README.md",
+    "solution": "solutions/0011-transforms/README.md",
+    "target": "foundation_labs"
+  },
+  {
+    "id": 12,
+    "title": "12 · 特征、描述与匹配",
+    "file": "0012-features-matching.html",
+    "exercise": "exercises/0012-features-matching/README.md",
+    "solution": "solutions/0012-features-matching/README.md",
+    "target": "foundation_labs"
+  },
+  {
+    "id": 13,
+    "title": "13 · RANSAC、配准与拼接",
+    "file": "0013-ransac-stitching.html",
+    "exercise": "exercises/0013-ransac-stitching/README.md",
+    "solution": "solutions/0013-ransac-stitching/README.md",
+    "target": "foundation_labs"
+  },
+  {
+    "id": 14,
+    "title": "0014 相机标定：从针孔到可验证参数",
+    "file": "0014-calibration.html",
+    "exercise": "exercises/0014-calibration/README.md",
+    "solution": "solutions/0014-calibration/README.md",
+    "target": "advanced_labs"
+  },
+  {
+    "id": 15,
+    "title": "0015 位姿与双目三维：坐标系、视差和误差",
+    "file": "0015-stereo-pose.html",
+    "exercise": "exercises/0015-stereo-pose/README.md",
+    "solution": "solutions/0015-stereo-pose/README.md",
+    "target": "advanced_labs"
+  },
+  {
+    "id": 16,
+    "title": "0016 视频输入输出与时间戳",
+    "file": "0016-video-time.html",
+    "exercise": "exercises/0016-video-time/README.md",
+    "solution": "solutions/0016-video-time/README.md",
+    "target": "advanced_labs"
+  },
+  {
+    "id": 17,
+    "title": "0017 光流、目标关联与 Kalman 跟踪",
+    "file": "0017-tracking.html",
+    "exercise": "exercises/0017-tracking/README.md",
+    "solution": "solutions/0017-tracking/README.md",
+    "target": "advanced_labs"
+  },
+  {
+    "id": 18,
+    "title": "0018 工业成像：镜头、光源、曝光与平场",
+    "file": "0018-optics-lighting.html",
+    "exercise": "exercises/0018-optics-lighting/README.md",
+    "solution": "solutions/0018-optics-lighting/README.md",
+    "target": "advanced_labs"
+  },
+  {
+    "id": 19,
+    "title": "0019 亚像素定位与测量误差预算",
+    "file": "0019-subpixel.html",
+    "exercise": "exercises/0019-subpixel/README.md",
+    "solution": "solutions/0019-subpixel/README.md",
+    "target": "advanced_labs"
+  },
+  {
+    "id": 20,
+    "title": "0020 缺陷检测与误报漏报的代价",
+    "file": "0020-defects.html",
+    "exercise": "exercises/0020-defects/README.md",
+    "solution": "solutions/0020-defects/README.md",
+    "target": "advanced_labs"
+  },
+  {
+    "id": 21,
+    "title": "0021 传统机器学习：特征、训练与独立评价",
+    "file": "0021-classification.html",
+    "exercise": "exercises/0021-classification/README.md",
+    "solution": "solutions/0021-classification/README.md",
+    "target": "advanced_labs"
+  },
+  {
+    "id": 22,
+    "title": "0022 ONNX 推理：预处理、布局与契约",
+    "file": "0022-dnn-contract.html",
+    "exercise": "exercises/0022-dnn-contract/README.md",
+    "solution": "solutions/0022-dnn-contract/README.md",
+    "target": "advanced_labs"
+  },
+  {
+    "id": 23,
+    "title": "0023 检测与分割：解码、NMS、坐标映射",
+    "file": "0023-detection-segmentation.html",
+    "exercise": "exercises/0023-detection-segmentation/README.md",
+    "solution": "solutions/0023-detection-segmentation/README.md",
+    "target": "advanced_labs"
+  },
+  {
+    "id": 24,
+    "title": "24 性能与内存：先量成本再优化",
+    "file": "0024-performance-memory.html",
+    "exercise": "exercises/0024-performance-memory/README.md",
+    "solution": "solutions/0024-performance-memory/README.md",
+    "target": "engineering_labs"
+  },
+  {
+    "id": 25,
+    "title": "25 有界并发、取消和Qt线程边界",
+    "file": "0025-bounded-pipeline.html",
+    "exercise": "exercises/0025-bounded-pipeline/README.md",
+    "solution": "solutions/0025-bounded-pipeline/README.md",
+    "target": "engineering_labs"
+  },
+  {
+    "id": 26,
+    "title": "26 GPU成本模型与Windows部署",
+    "file": "0026-gpu-deployment.html",
+    "exercise": "exercises/0026-gpu-deployment/README.md",
+    "solution": "solutions/0026-gpu-deployment/README.md",
+    "target": "engineering_labs"
+  },
+  {
+    "id": 27,
+    "title": "27 阅读源码：相关、卷积与可验证对照",
+    "file": "0027-source-comparison.html",
+    "exercise": "exercises/0027-source-comparison/README.md",
+    "solution": "solutions/0027-source-comparison/README.md",
+    "target": "engineering_labs"
+  },
+  {
+    "id": 28,
+    "title": "28 综合项目一：可复现图像处理工作台",
+    "file": "0028-capstone-workbench.html",
+    "exercise": "exercises/0028-capstone-workbench/README.md",
+    "solution": "solutions/0028-capstone-workbench/README.md",
+    "target": "engineering_labs"
+  },
+  {
+    "id": 29,
+    "title": "29 综合项目二：工业测量与缺陷检验",
+    "file": "0029-capstone-inspection.html",
+    "exercise": "exercises/0029-capstone-inspection/README.md",
+    "solution": "solutions/0029-capstone-inspection/README.md",
+    "target": "engineering_labs"
+  },
+  {
+    "id": 30,
+    "title": "30 综合项目三：视频、AI接口和跟踪验收",
+    "file": "0030-capstone-video-ai.html",
+    "exercise": "exercises/0030-capstone-video-ai/README.md",
+    "solution": "solutions/0030-capstone-video-ai/README.md",
+    "target": "engineering_labs"
+  }
+]

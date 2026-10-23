@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>06 · 卷积、滤波与边界</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><main><nav><a href="index.html">课程入口</a><a href="../exercises/0006-filtering/README.md">独立练习</a><a href="../solutions/0006-filtering/README.md">参考答案</a></nav>
+<p class="eyebrow">基础算法 / 第 06 课 / Qt 6.8.3 · OpenCV 5 · C++20</p><h1>卷积、滤波与边界</h1><p class="intro">去噪为什么让物体边缘移动？</p>
+<h2>问题与直觉</h2><p>线性滤波把邻域像素乘权重再求和。核的总和为一时，内部常量区域保持不变；核有负系数时则可能产生负值。OpenCV filter2D 实际执行相关，即不翻转核；对称高斯核不受差别影响，非对称方向核则要小心符号与方向。中值滤波排序后取中间值，是非线性操作，不能用一个固定卷积核替代。</p><h2>数学与手算</h2><p>均值三乘三核的每个权重为九分之一。全图九十时内部均值九十；左上角零填充只有四个有效像素，所以输出 4×90/9=40。反射边界仍然是九十。默认三乘三高斯核可写为 [1,2,1] 的外积除十六，单个二百五十五脉冲的中心输出约 63.75，量化后六十四；同一脉冲经过三乘三中值为零。</p>
+<h2>完整最小实验</h2><pre><code>./scripts/RunLab.ps1 -Lesson 06
+# 或在构建输出目录直接调用，输出目录可自行指定
+foundation_labs 06 build/lab-output/06</code></pre><p>完整可编译入口在 <a href="../src/app/FoundationLabs.cpp">FoundationLabs.cpp</a> 的 case06，共享 main 负责日志、参数检查、目录创建和异常转非零退出码。该实验自行构造输入，不需要下载图片、摄像头或模型。先查看该函数及其调用的 save、require，再运行；不要只抄一个脱离初始化和错误处理的 API 片段。</p>
+<p>case06 输出 reflect.png、zero.png、gaussian.png、median.png，逐个检查角点和中心值。查看浮点中间结果时应额外记录 minMaxLoc，显示归一化只能帮助看结构，不能作为原始响应的数值证据。核尺寸和边界方式都是算法配置的一部分。</p><p>预测后运行并核对标准输出的数值与中间 PNG。程序断言失败、目录不可写或图像编码失败均返回非零；尝试把课号写成 99，确认入口拒绝无效范围。输出目录必须可创建且可写，不能把已有普通文件当目录。最小实验验证了受控输入的行为，不等于已经验证所有真实业务图像。</p>
+<h2>失败案例与排错</h2><p>失败实验：一条只有一像素宽的亮线被中值滤波完全删除，不能说所有孤立结构都是噪声。均值对椒盐噪声会把极值扩散到邻居。高斯降低高频噪声，也降低细纹对比；应根据需要保留的最小结构决定平滑尺度。</p><p>排错顺序是先确认输入尺寸、类型、通道语义和取值范围，再检查中间矩阵，最后调整算法参数。把每一步输出与未处理原图并排比较，记录参数及观察结论。显示器自动缩放、JPEG 压缩、归一化和伪彩都会改变观感；判断像素值应读取矩阵，不能从截图颜色反推数值。</p>
+<h2>独立练习</h2><p>用七乘七常量图和中心脉冲分别比较三乘三及五乘五均值，手算角点和中心。再用非对称核 [-1,0,1] 验证相关的正负方向。</p><h2>验收标准</h2><p>三乘三常量角点在零边界为四十，在反射边界为九十；三乘三脉冲均值中心约二十八。方向响应应在浮点或有符号矩阵中比较。</p><p>提交输入生成规则、运行命令、至少一个数值表、全部关键中间结果和失败案例。评分：数值正确四十分，边界与错误处理二十分，解释参数和失败原因二十分，可复现记录二十分。八十分且所有关键数值正确算完成本课；能够口头解释为什么成立，比把测试标绿更重要。</p>
+<h2>自测：先回答再展开</h2><details><summary>常量图角点为何变暗？</summary><p>零填充参与了均值。</p></details><details><summary>filter2D 会自动翻转核吗？</summary><p>不会，执行相关；真正卷积需先翻核。</p></details><details><summary>为什么不能直接保存负响应到 8 位？</summary><p>负值会截断，方向信息丢失。</p></details><h2>术语</h2><p>kernel 核；correlation 相关；convolution 卷积；border 外推边界</p>
+<h2>官方资料与版本核对</h2><p><a href="https://docs.opencv.org/4.x/d4/d86/group__imgproc__filter.html">OpenCV 官方 API / 教程</a>用于进一步核对概念与参数。在线 4.x 页面为补充阅读，不是本工程切换版本的依据；可执行行为以固定 5.0.0 头文件、实现及本课数值实验为准。遇到签名差异先搜索本地源码，记录差异再改调用。<a href="https://github.com/opencv/opencv/tree/5.0.0">固定版本官方源码</a>是版本核对入口。</p>
+<nav aria-label="逐课导航"><a href="0005-threshold.html">上一课</a><a href="../docs/self-study-guide.md">自学与验收指南</a><a href="../docs/qt-opencv-vocabulary.md">英文词汇</a><a href="0007-morphology.html">下一课</a></nav></main></body></html>

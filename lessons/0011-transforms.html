@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>11 · 仿射、透视与插值</title><link rel="stylesheet" href="../assets/style.css"></head>
+<body><main><nav><a href="index.html">课程入口</a><a href="../exercises/0011-transforms/README.md">独立练习</a><a href="../solutions/0011-transforms/README.md">参考答案</a></nav>
+<p class="eyebrow">基础算法 / 第 11 课 / Qt 6.8.3 · OpenCV 5 · C++20</p><h1>仿射、透视与插值</h1><p class="intro">矫正图像为什么会出现黑边？</p>
+<h2>问题与直觉</h2><p>几何变换先变换坐标，再在原图上采样。仿射矩阵有六个参数，可以表达平移、旋转、缩放和错切，保持直线及平行关系。透视矩阵是三乘三齐次矩阵，整体倍数不改变映射，可表达平面在透视相机下的投影。变换矩阵正确也不保证目标完整：输出画布尺寸必须覆盖变换后的有效区域。</p><h2>数学与手算</h2><p>平移矩阵 [[1,0,7],[0,1,5]] 将 (24,24) 映射到 (31,29)。warpAffine 默认接收源到目标矩阵，内部反向采样避免空洞；设置 WARP_INVERSE_MAP 后矩阵意义反过来。线性插值以小数位置周围像素加权，例如一维 [0,100] 在 0.25 位置为 25；最近邻只取一个样本。</p>
+<h2>完整最小实验</h2><pre><code>./scripts/RunLab.ps1 -Lesson 11
+# 或在构建输出目录直接调用，输出目录可自行指定
+foundation_labs 11 build/lab-output/11</code></pre><p>完整可编译入口在 <a href="../src/app/FoundationLabs.cpp">FoundationLabs.cpp</a> 的 case11，共享 main 负责日志、参数检查、目录创建和异常转非零退出码。该实验自行构造输入，不需要下载图片、摄像头或模型。先查看该函数及其调用的 save、require，再运行；不要只抄一个脱离初始化和错误处理的 API 片段。</p>
+<p>case11 输出 source、shifted、perspective-identity 三图，验证平移后的起点、总面积及单位透视矩阵零误差。把横向平移改成二百而保持原画布，图像全黑属于裁剪结果。标签图必须选最近邻，否则线性插值会生成不存在的标签编号。</p><p>预测后运行并核对标准输出的数值与中间 PNG。程序断言失败、目录不可写或图像编码失败均返回非零；尝试把课号写成 99，确认入口拒绝无效范围。输出目录必须可创建且可写，不能把已有普通文件当目录。最小实验验证了受控输入的行为，不等于已经验证所有真实业务图像。</p>
+<h2>失败案例与排错</h2><p>失败实验：把四个透视点按不同顺序传入，输出会扭曲甚至翻折。三个仿射点共线会导致退化，四个透视点也需要非退化布局。多次连续 warp 会反复插值导致模糊，应该先组合矩阵后尽量只采样一次。</p><p>排错顺序是先确认输入尺寸、类型、通道语义和取值范围，再检查中间矩阵，最后调整算法参数。把每一步输出与未处理原图并排比较，记录参数及观察结论。显示器自动缩放、JPEG 压缩、归一化和伪彩都会改变观感；判断像素值应读取矩阵，不能从截图颜色反推数值。</p>
+<h2>独立练习</h2><p>生成棋盘，先平移再旋转，比较连续两次变换与组合矩阵一次变换；另建一张类别值为零和十的标签图，对比最近邻与线性插值的唯一值集合。</p><h2>验收标准</h2><p>单位变换的最大绝对差应为零；整数平移、最近邻且不裁剪时面积保持。组合顺序需要明确列向量约定，后执行矩阵左乘。</p><p>提交输入生成规则、运行命令、至少一个数值表、全部关键中间结果和失败案例。评分：数值正确四十分，边界与错误处理二十分，解释参数和失败原因二十分，可复现记录二十分。八十分且所有关键数值正确算完成本课；能够口头解释为什么成立，比把测试标绿更重要。</p>
+<h2>自测：先回答再展开</h2><details><summary>黑边一定是矩阵错了吗？</summary><p>可能采样越界或画布不够大。</p></details><details><summary>标签图为什么用最近邻？</summary><p>避免插值创造无效类别。</p></details><details><summary>矩阵乘法可交换吗？</summary><p>通常不能，旋转再平移与平移再旋转不同。</p></details><h2>术语</h2><p>affine 仿射；homography 单应；interpolation 插值；inverse mapping 逆向采样</p>
+<h2>官方资料与版本核对</h2><p><a href="https://docs.opencv.org/4.x/d4/d61/tutorial_warp_affine.html">OpenCV 官方 API / 教程</a>用于进一步核对概念与参数。在线 4.x 页面为补充阅读，不是本工程切换版本的依据；可执行行为以固定 5.0.0 头文件、实现及本课数值实验为准。遇到签名差异先搜索本地源码，记录差异再改调用。<a href="https://github.com/opencv/opencv/tree/5.0.0">固定版本官方源码</a>是版本核对入口。</p>
+<nav aria-label="逐课导航"><a href="0010-watershed.html">上一课</a><a href="../docs/self-study-guide.md">自学与验收指南</a><a href="../docs/qt-opencv-vocabulary.md">英文词汇</a><a href="0012-features-matching.html">下一课</a></nav></main></body></html>

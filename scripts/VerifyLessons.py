@@ -1,6 +1,7 @@
 """Check local lesson documents and their offline dependencies, without network access."""
 from html.parser import HTMLParser
 from pathlib import Path
+import json
 from urllib.parse import unquote, urlsplit
 
 
@@ -38,8 +39,16 @@ def main():
     root = Path(__file__).resolve().parent.parent
     failures = []
     documents = sorted((root / "lessons").glob("*.html"))
-    if len(documents) != 3:
-        failures.append("expected index plus two delivered lessons")
+    catalog = json.loads((root / "docs/course-catalog.json").read_text(encoding="utf-8"))
+    if [entry["id"] for entry in catalog] != list(range(1, 31)):
+        failures.append("expected a complete 01..30 curriculum")
+    if {p.name for p in documents} != {"index.html", *(entry["file"] for entry in catalog)}:
+        failures.append("catalog and delivered lessons differ")
+    for entry in catalog:
+        for variant in ("exercise", "solution"):
+            path = root / entry[variant]
+            if not path.is_file() or len(path.read_text(encoding="utf-8").strip()) < 100:
+                failures.append(f"lesson {entry['id']}: missing substantive {variant}")
     for document in documents:
         parsed = LessonParser()
         parsed.feed(document.read_text(encoding="utf-8"))

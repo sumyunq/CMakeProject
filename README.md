@@ -2,9 +2,21 @@
 
 面向已有 Qt Widgets 开发能力的学习者。完整路线、逐课深入：原理、实验、失败案例、独立练习与复盘。
 
+**30课完整自学内容已提供**，不等待逐课解锁。先看[自主学习与验收指南](docs/self-study-guide.md)；每课都有独立练习及单独存放的参考解答，学习状态由自己的证据记录。
+
 **学习入口：[本地课程](lessons/index.html)** · [课程地图](docs/curriculum.md) · [进度](learning-records/progress.md) · [官方资料](RESOURCES.md)
 
 配套阅读：[Qt 与 OpenCV 英文词汇学习手册](docs/qt-opencv-vocabulary.md)，包含分主题词表、API 拆词、报错句式和独立自测。
+
+还有[数学速查](docs/math-reference.md)、[算法纵深研读](docs/algorithm-deep-dive.md)、[排错指南](docs/troubleshooting.md)、[4/5迁移](docs/opencv5-migration.md)和[原生高级API实验](docs/native-labs.md)。课程03～30使用生成数据，可离线完成：
+
+```powershell
+./scripts/Build.ps1 -Configuration Debug
+./scripts/RunLab.ps1 -Lesson 03
+./scripts/RunLab.ps1 -Lesson 30
+```
+
+默认实验输出到build/lab-output。完整模块使用独立full-install安装，准备方法见原生实验页；教材明确区分离线数值实验、原生API验证和真实硬件成果。综合项目的独立实现仍由学习者完成，参考程序不等同于生产系统。
 
 ## 固定基线
 
@@ -31,7 +43,7 @@ OpenCV 固定提交 `40738fb16ceddb5fb3fea747585f7ce6abb0605b`，对应正式标
 ./scripts/Build.ps1 -Configuration Release
 ```
 
-准备依赖时会验证源码提交、干净状态和版本头。官方源码按首批模块稀疏检出；imgproc 必要依赖 geometry、flann 也会构建。MSVC 下通过上游构建选项启用 _USE_MATH_DEFINES，解决 5.0.0 geometry 的 M_PI 编译问题，未修改第三方源码。后续扩展模块需要显式增加检出目录与 BUILD_LIST，并重新验收。日志在 build/verification；每个外部命令检查退出码，失败停止。
+准备依赖时会验证源码提交、干净状态和版本头。默认Foundation按首批模块稀疏检出；imgproc必要依赖geometry、flann也会构建。`-Profile Full`使用独立目录增加特征、标定、双目、视频和DNN，见原生实验说明。MSVC通过上游构建选项启用_USE_MATH_DEFINES，完整构建另用项目钩子处理MLAS无汇编回退，不修改第三方源码。日志在build/verification；每个外部命令检查退出码，失败停止。
 
 首次准备也会调用本机 Visual Studio 的 vcpkg 安装日志库。已有 OpenCV 时可单独运行 `./scripts/PrepareLoggerDependencies.ps1`；安装、下载与编译产物都位于忽略提交的 build 目录，需 Visual Studio 已安装 vcpkg 组件。
 
@@ -61,18 +73,18 @@ OpenCV 固定提交 `40738fb16ceddb5fb3fea747585f7ce6abb0605b`，对应正式标
 
 ## 验证与部署
 
-Build.ps1 默认运行 CTest（可用 -SkipTests 仅构建，但不能据此声称验收）。测试覆盖像素转换与所有权、非连续 ROI、无效输入、并发日志、错误目录、保留期和窗口显示。各公开头文件有独立编译检查。
+Build.ps1默认运行37项CTest（可用-SkipTests仅构建，但不能据此声称验收），含28项课程数值实验、3项无效课号和原6项基础验证。各公开头文件有独立编译检查。答案文档的代码另用CheckReferenceAnswers.ps1验证，不加入默认构建。
 
 ```powershell
 ./scripts/Deploy.ps1
 ```
 
-先完成 Release 构建。部署脚本创建独立时间戳目录，准备 Qt/OpenCV 运行库，然后以去掉开发路径的 PATH 运行诊断和 Mat 演示，启动并正常关闭窗口。它不替代另一台干净 Windows 机器的安装验收。
+先完成Release构建。部署脚本创建独立时间戳目录，准备Qt/OpenCV运行库，然后以去掉开发路径的PATH运行诊断、Mat和28项课程实验，启动并正常关闭窗口。它不替代另一台干净Windows机器的安装验收。
 
 日志在各可执行文件旁 logs，由 spdlog 专属线程池异步输出；8192 容量、单消费者、满队列阻塞不丢弃。正常退出先请求 flush，再等待线程池排空并复核落盘；保留 7 天。Debug 记录应用函数进入/退出，Release 不生成函数追踪。日志级别使用 spdlog 标准名称。文件不可写时向标准错误报告；应用启动失败时明确显示错误。Release 调用方只写脱敏事件，不记录用户数据或完整业务路径。
 
 ## 独立练习
 
-见 exercises 下的两课任务。练习不自动加入默认构建，也不预先附完整答案；完成后提交源码、预测、实际结果和失败案例复盘。示例测试通过不会把你的学习状态改为“已验收”。
+exercises下提供30课任务，solutions下单独提供对应参考答案。先独立完成，再对答案并按自学指南记录预测、源码、结果与失败案例；不需要回到会话才能继续。练习与答案不自动加入默认演示构建。示例测试通过不会把你的学习状态改为“已验收”。
 
 目录遵守 src 分层、tests、resources、docs、cmake、scripts、3rdparty 约定。依赖源码、构建目录、本机预设、部署副本及日志都不进入提交。当前实施记录见 docs/seession_context.md。
