@@ -8,6 +8,8 @@
 
 配套阅读：[Qt 与 OpenCV 英文词汇学习手册](docs/qt-opencv-vocabulary.md)，包含分主题词表、API 拆词、报错句式和独立自测。
 
+易混术语另见[关键术语辨析](docs/terminology/critical-terms.md)：按概念分义，附词性、双语例句、来源与校核状态；[CSV术语库](docs/terminology/critical-terms.csv)用于维护和字段映射。
+
 还有[数学速查](docs/math-reference.md)、[算法纵深研读](docs/algorithm-deep-dive.md)、[排错指南](docs/troubleshooting.md)、[4/5迁移](docs/opencv5-migration.md)和[原生高级API实验](docs/native-labs.md)。课程03～30使用生成数据，可离线完成：
 
 ```powershell
