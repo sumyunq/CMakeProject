@@ -37,3 +37,9 @@ std::optional<double> depthSigma(double disparity, double sigmaDisparity)
 ```
 
 depthSigma(20,.5)为60；depthSigma(0,.5)无值。深度与标准差应使用同一长度单位。
+
+## 进阶验算详解：双目深度误差
+
+题目：焦距 800 px，基线 0.1 m，视差分别为 40、20 px。求深度；40 px 处若视差误差为 1 px，用导数估计深度误差。
+
+参考计算：Z=fB/d，分别为 2 m、4 m；dZ/dd=-fB/d²=-80/1600=-0.05 m/px，故约 0.05 m。视差趋近零时不确定度急剧增大；负或零视差应按相机约定判无效。

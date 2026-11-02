@@ -1,0 +1,31 @@
+name: Documentation and assets
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Lessons and local links
+        run: python3 scripts/VerifyLessons.py
+      - name: Terminology
+        run: |
+          python3 scripts/GenerateTerminology.py --check
+          python3 scripts/CheckTerminologyCoverage.py
+      - name: Asset hashes
+        run: python3 scripts/VerifyAssets.py
+      - name: Asset verifier regression tests
+        run: python3 tests/scripts/TestVerifyAssets.py
+      - name: Python syntax
+        run: python3 -m compileall -q scripts
+      - name: PowerShell syntax
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem scripts -Filter *.ps1 -Recurse | ForEach-Object {
+            $tokens = $null; $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors)
+            if ($errors) { $errors | Write-Host; $failed = $true }
+          }
+          if ($failed) { exit 1 }

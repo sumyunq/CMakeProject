@@ -1,0 +1,47 @@
+{
+  "description": "由真实照片缩放后的水平移动裁剪序列；运动由软件合成，不是实拍运动。",
+  "frames": 12,
+  "fps": 10,
+  "frame_width": 256,
+  "frame_height": 192,
+  "resized_source": [
+    320,
+    240
+  ],
+  "source_crop_y": 24,
+  "source_crop_x": [
+    32,
+    34,
+    36,
+    38,
+    40,
+    42,
+    44,
+    46,
+    48,
+    50,
+    52,
+    54
+  ],
+  "expected_motion_px_per_frame": [
+    -2,
+    0
+  ],
+  "codec": "MJPEG",
+  "source": "astronaut.png",
+  "inspection": {
+    "reference": "cell.png",
+    "defect_type": "在真实显微纹理上人工改变圆形区域灰度（非真实工业缺陷）",
+    "circle_center_xy": [
+      275,
+      330
+    ],
+    "radius_px": 10,
+    "pixel_count": 317,
+    "absolute_change": 80,
+    "threshold": 40,
+    "expected_tp": 317,
+    "expected_fp": 0,
+    "expected_fn": 0
+  }
+}

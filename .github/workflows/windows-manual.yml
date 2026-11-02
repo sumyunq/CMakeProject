@@ -1,0 +1,35 @@
+name: Manual locked Windows build
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/feat/opencv-learning'
+    runs-on: [self-hosted, Windows, X64, cvlab-locked]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # This runner's ignored Qt/OpenCV build caches are provisioned in its workspace.
+          clean: false
+      - name: Preflight fixed tools and dependencies
+        shell: pwsh
+        run: |
+          ./scripts/Preflight.ps1 -Profile Foundation
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./scripts/Preflight.ps1 -Profile Full
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./tests/scripts/TestPreflight.ps1
+      - name: Build and test
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($config in @('Debug', 'Release')) {
+            ./scripts/Build.ps1 -Configuration $config
+            ./scripts/CheckReferenceAnswers.ps1 -Configuration $config
+            ./scripts/BuildNativeLabs.ps1 -Configuration $config -WithModel
+            ./scripts/BuildWorkbenchReference.ps1 -Configuration $config
+          }
+      - name: Deploy and verify
+        shell: pwsh
+        run: ./scripts/Deploy.ps1

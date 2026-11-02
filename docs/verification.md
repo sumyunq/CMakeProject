@@ -1,3 +1,5 @@
+> 最新升级验收见本文末「2026-11-02 升级验收」。前文为历史批次，测试数量和推送状态不代表当前结果。
+
 # 首批验收与自检
 
 ## 完整课程交付验收 2026-10-23
@@ -100,3 +102,29 @@ python scripts/VerifyLessons.py
 - 相对日志迁移提交 5108632，全部 14 个源文件去除注释后的可执行 token 一致；枚举仅按逐项尾注需要拆行，没有接口或逻辑变化。
 - 最终 Debug/Release 均重新构建，各 6/6 CTest 通过；6 个公开头文件独立包含编译通过。检查证据保存在 build/verification/doxygen-final.log 和 spdlog-final-*.log。
 - 自检：修改仅涉及注释及对应规范记录，源文件无需新增构建条目。未找到 wbliu-code-check，以规范自检和独立只读审查替代；未运行 qt-cpp-review。
+
+## 2026-11-02 升级验收
+
+环境保持 Qt6.8.3、OpenCV5.0.0、C++20、MSVC14.44.35207 x64、CMake3.30.5、Ninja1.12.1、spdlog1.17.0。Full Debug从暂停缓存增量完成；Foundation与Full的Debug/Release预检通过，不修改全局PATH或上游源码。
+
+| 验收项 | 实际结果与证据（build/verification内日志不提交） |
+|---|---|
+| 默认工程 Debug / Release | 各37/37 CTest；final-main-debug.log、final-main-release.log；头文件独立编译 |
+| 独立参考答案 | 两配置均编译并通过正常及边界断言；final-answers-debug.log、final-answers-release.log；不进默认构建 |
+| 原生API及真实数据 | 两配置各20/20；final-native-debug.log、final-native-release.log |
+| Qt工作台 | 两配置编译、独立头文件、后台/取消/过期结果/独立图像/JSON/PNG/重置自检通过；final-workbench-*.log、workbench-*-tests.log |
+| 样本及模型 | 六个入库资源哈希与来源字段通过；校验器4项破坏/缺失/越界测试通过；下载模型SHA-256匹配 |
+| 术语与教材 | 219概念，原31条保留；CSV/Markdown一致，171个原速查表词项均有对应；30课本地链接、自测结构检查通过；逐课语境记录见terminology/coverage.md |
+| 预检与脚本 | Foundation/Full Both通过；缺路径、错误Ninja、成功入口的隔离预检通过；Python编译、PowerShell解析、工作流YAML解析通过 |
+| Release部署 | 默认程序与28项课程实验在系统PATH下通过；deployed-probe.log、resume-deploy.log |
+| 工作台部署及窗口 | 同一部署目录复制独立参考exe，在系统PATH下自检通过（deployed-workbench.log）；实际窗口观察到三行240像素、总720，阈值250变0，重置恢复3，正常关闭 |
+
+真实数值：ORB匹配797、内点756、四点最大误差0.491676px（门限2px）；视频12帧10fps，首对光流(-2.00047,-0.00787)px；人工圆形缺陷TP317/FP0/FN0。SqueezeNet输入[1,3,224,224]、实际输出[1,1000]，前五索引823/543/422/503/773与原始分数19.1695/19.0708/18.8869/18.2567/17.7489，固定样本容差0.01。多视图合成标定12×54点，RMS=1.08171e-5px。完整输入/预处理/许可/限制见[真实数据实验](real-data-labs.md)。不把单张图片、合成运动或人工缺陷指标表述为生产精度。
+
+回归证据：新calibration测试先因缺少模式失败，再实现到通过；OpenCV5弃用Mat逗号初始化，改用Matx构造而非关闭警告。重置回归先以exit29失败，再连接参数模型重置到通过。答案伪代码被错误提取导致编译失败，修正text标注，并将全部30份答案显式纳入CMake依赖，双配置复验通过。
+
+独立只读审查没有发现线程生命周期、队列或导出原子提交的阻塞漏洞；审查发现的重置、指南命令及旧文档描述已修复。未找到wbliu-code-check，按AGENTS规范自检；没有运行qt-cpp-review。审查建议也已落实：视频AI严格检查[1,1000]形状及有限性，单图推理在入口检查stdout写入失败。
+
+未验证：第二台干净Windows；远程自托管固定工具链runner（尚未配置）；真实相机、生产工件精度、GPU；完整交互录屏。托管CI配置已提供，远程运行状态另以实际Actions结果为准，不能把本地文档检查说成远程CI或完整编译通过。学习者进度不因上述测试改变。
+
+[自检] 新增原生源码、工作台分层源码/资源/测试均显式列入独立CMake；普通业务函数不依赖GUI，QPixmap仅主线程，关闭先等待worker。图像输出与跨线程显示有独立像素；JSON失败保留原参数、PNG原子提交。固定依赖源码、构建缓存、用户预设、模型和日志均在忽略目录；仅许可明确的小样本入库。没有更改既有公共业务接口。

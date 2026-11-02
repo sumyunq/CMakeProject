@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "assets": [
+    {
+      "path": "astronaut.png",
+      "size_bytes": 791555,
+      "sha256": "88431cd9653ccd539741b555fb0a46b61558b301d4110412b5bc28b5e3ea6cb5",
+      "type": "真实彩色照片",
+      "source": "https://github.com/scikit-image/scikit-image/tree/v0.25.2/skimage/data",
+      "version": "v0.25.2",
+      "license": "NASA图像，无已知版权限制；scikit-image注明public domain",
+      "license_reference": "https://scikit-image.org/docs/0.25.x/api/skimage.data.html",
+      "limitations": "仅教学样本；不能代表真实工业检测精度。"
+    },
+    {
+      "path": "cell.png",
+      "size_bytes": 74183,
+      "sha256": "8d23a7fb81f7cc877cd09f330357fc7f595651306e84e17252f6e0a1b3f61515",
+      "type": "真实灰度显微图",
+      "source": "https://github.com/scikit-image/scikit-image/tree/v0.25.2/skimage/data",
+      "version": "v0.25.2",
+      "license": "CC0 1.0；scikit-image数据文档注明CC0",
+      "license_reference": "https://scikit-image.org/docs/0.25.x/api/skimage.data.html",
+      "limitations": "仅教学样本；不能代表真实工业检测精度。"
+    },
+    {
+      "path": "astronaut-motion.avi",
+      "size_bytes": 201472,
+      "sha256": "864aa33db851b21db1a3e53f25544426e698e4a11d718ad778057ea78d9e3be6",
+      "type": "由真实照片生成的合成运动视频",
+      "source": "https://github.com/scikit-image/scikit-image/tree/v0.25.2/skimage/data",
+      "version": "v0.25.2，生成工具FFmpeg 5.1",
+      "license": "基于astronaut公开图像；视频帧的运动为合成裁剪",
+      "license_reference": "https://scikit-image.org/docs/0.25.x/api/skimage.data.html",
+      "limitations": "仅教学样本；不能代表真实工业检测精度。"
+    },
+    {
+      "path": "annotations.json",
+      "size_bytes": 906,
+      "sha256": "7285b31dea77981b3fd1e921ca91c47e1eac761d8dc63e654582a9411e2f22a0",
+      "type": "生成视频的裁剪和位移标注",
+      "source": "项目生成",
+      "version": "1",
+      "license": "项目原创标注，MIT",
+      "license_reference": "LICENSE",
+      "limitations": "仅教学样本；不能代表真实工业检测精度。"
+    },
+    {
+      "path": "imagenet-synset.txt",
+      "size_bytes": 31675,
+      "sha256": "acf75ef0abe89694b19056e0796401068b459c457baa30335f240c7692857355",
+      "type": "ImageNet类别索引；源仓库Apache-2.0",
+      "source": "https://raw.githubusercontent.com/onnx/models/b1eeaa1ac722dcc1cd1a8284bde34393dab61c3d/validated/vision/classification/synset.txt",
+      "version": "b1eeaa1ac722dcc1cd1a8284bde34393dab61c3d",
+      "license": "Apache-2.0",
+      "license_reference": "onnx-model-zoo-LICENSE.txt",
+      "limitations": "类别名称仅用于解释模型输出，不代表识别结果正确。"
+    },
+    {
+      "path": "onnx-model-zoo-LICENSE.txt",
+      "size_bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "type": "ONNX Model Zoo Apache-2.0许可证原文",
+      "source": "https://raw.githubusercontent.com/onnx/models/b1eeaa1ac722dcc1cd1a8284bde34393dab61c3d/LICENSE",
+      "version": "b1eeaa1ac722dcc1cd1a8284bde34393dab61c3d",
+      "license": "Apache-2.0",
+      "license_reference": "onnx-model-zoo-LICENSE.txt",
+      "limitations": "类别名称仅用于解释模型输出，不代表识别结果正确。"
+    }
+  ],
+  "model": {
+    "name": "SqueezeNet 1.1 ONNX",
+    "url": "https://media.githubusercontent.com/media/onnx/models/b1eeaa1ac722dcc1cd1a8284bde34393dab61c3d/validated/vision/classification/squeezenet/model/squeezenet1.1-7.onnx",
+    "version": "b1eeaa1ac722dcc1cd1a8284bde34393dab61c3d",
+    "sha256": "1eeff551a67ae8d565ca33b572fc4b66e3ef357b0eb2863bb9ff47a918cc4088",
+    "size_bytes": 4956208,
+    "license": "Apache-2.0",
+    "license_reference": "https://github.com/onnx/models/blob/b1eeaa1ac722dcc1cd1a8284bde34393dab61c3d/validated/vision/classification/squeezenet/README.md",
+    "input": "float32 NCHW [1,3,224,224], RGB [0,1], ImageNet mean/std",
+    "output": "1000类分数；具体形状与名称以运行时为准",
+    "limitations": "图像分类，不是目标检测或分割"
+  }
+}

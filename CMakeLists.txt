@@ -108,13 +108,36 @@ if(BUILD_TESTING)
         ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<TARGET_FILE_DIR:Qt6::Core>;PATH=path_list_prepend:$<TARGET_FILE_DIR:opencv_core>" TIMEOUT 30)
     find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
     set(reference_answers
+        solutions/0001-environment/README.md
         solutions/0002-image-mat/README.md
-        solutions/0014-calibration/README.md solutions/0015-stereo-pose/README.md
-        solutions/0016-video-time/README.md solutions/0017-tracking/README.md
-        solutions/0018-optics-lighting/README.md solutions/0019-subpixel/README.md
-        solutions/0020-defects/README.md solutions/0021-classification/README.md
-        solutions/0022-dnn-contract/README.md solutions/0023-detection-segmentation/README.md
-        solutions/0024-performance-memory/README.md solutions/0027-source-comparison/README.md)
+        solutions/0003-pixels-color/README.md
+        solutions/0004-arithmetic-histogram/README.md
+        solutions/0005-threshold/README.md
+        solutions/0006-filtering/README.md
+        solutions/0007-morphology/README.md
+        solutions/0008-gradients-canny/README.md
+        solutions/0009-shape-hough/README.md
+        solutions/0010-watershed/README.md
+        solutions/0011-transforms/README.md
+        solutions/0012-features-matching/README.md
+        solutions/0013-ransac-stitching/README.md
+        solutions/0014-calibration/README.md
+        solutions/0015-stereo-pose/README.md
+        solutions/0016-video-time/README.md
+        solutions/0017-tracking/README.md
+        solutions/0018-optics-lighting/README.md
+        solutions/0019-subpixel/README.md
+        solutions/0020-defects/README.md
+        solutions/0021-classification/README.md
+        solutions/0022-dnn-contract/README.md
+        solutions/0023-detection-segmentation/README.md
+        solutions/0024-performance-memory/README.md
+        solutions/0025-bounded-pipeline/README.md
+        solutions/0026-gpu-deployment/README.md
+        solutions/0027-source-comparison/README.md
+        solutions/0028-capstone-workbench/README.md
+        solutions/0029-capstone-inspection/README.md
+        solutions/0030-capstone-video-ai/README.md)
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/generated/ReferenceAnswers.cpp"
         COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/scripts/ExtractReferenceChecks.py" "${PROJECT_SOURCE_DIR}" "${CMAKE_BINARY_DIR}/generated/ReferenceAnswers.cpp"
         DEPENDS scripts/ExtractReferenceChecks.py docs/course-catalog.json ${reference_answers}

@@ -90,3 +90,10 @@ Build.ps1默认运行37项CTest（可用-SkipTests仅构建，但不能据此声
 exercises下提供30课任务，solutions下单独提供对应参考答案。先独立完成，再对答案并按自学指南记录预测、源码、结果与失败案例；不需要回到会话才能继续。练习与答案不自动加入默认演示构建。示例测试通过不会把你的学习状态改为“已验收”。
 
 目录遵守 src 分层、tests、resources、docs、cmake、scripts、3rdparty 约定。依赖源码、构建目录、本机预设、部署副本及日志都不进入提交。当前实施记录见 docs/seession_context.md。
+
+## 本批升级入口
+
+- [219个概念的术语库](docs/terminology/critical-terms.md)与[逐课语境复核](docs/terminology/coverage.md)。
+- [真实样本、视频、SqueezeNet与完整标定接口](docs/real-data-labs.md)。
+- [干净Windows复现与预检](docs/clean-windows.md)、[升级计划](docs/upgrade-plan.md)、[验证记录](docs/verification.md)。
+- 工作台参考：`./scripts/BuildWorkbenchReference.ps1 -Configuration Release -Run`。包含后台处理、参数重置/保存、对象表、取消和PNG导出；独立于默认构建。

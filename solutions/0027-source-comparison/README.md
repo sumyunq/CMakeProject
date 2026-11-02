@@ -63,3 +63,9 @@ cv::Mat correlateZero(const cv::Mat& input, const cv::Mat& kernel) {
 }
 ```
 复制边界版本把sy、sx分别用std::clamp限制到有效范围，取消越界跳过，其他累加不变；对照filter2D必须传BORDER_REPLICATE。
+
+## 进阶验算详解：构建和源码证据
+
+题目：一组测试 Debug 为 40 ms，Release 为 10 ms。能否据此证明修改算法带来四倍加速？写出需要补充的对照。
+
+参考计算：不能；编译配置是混杂变量。应在相同 Release 工具链、输入、预热、线程数和硬件下比较修改前后，报告多次分布及正确性，同时记录源码版本和参数。

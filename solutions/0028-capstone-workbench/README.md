@@ -12,7 +12,7 @@
 
 `pwsh -File scripts/RunLab.ps1 -Lesson 28`，或 `engineering_labs 28 artifacts/lesson28`。共享完整实现位于 `src/app/EngineeringLabs.cpp` 中对应函数；程序检查每张PNG写读并校验数值，任何契约失败非零退出。
 
-28运行完整离线业务链：生成→threshold→connectedComponents→面积与计数断言→导出三幅PNG。28-input.png、28-mask.png、28-bad-threshold.png分别对应输入、正确结果、错误参数。该目标是可运行算法验收器；Qt交互扩展按下述里程碑独立完成，不把命令行输出冒充GUI验证。
+28运行完整离线业务链：生成→threshold→connectedComponents→面积与计数断言→导出三幅PNG。28-input.png、28-mask.png、28-bad-threshold.png分别对应输入、正确结果、错误参数。该目标是可运行算法验收器；另有独立 Qt 工作台参考，分别验证，不把命令行输出冒充GUI验证。
 
 ## 独立扩展的实施顺序
 
@@ -63,4 +63,48 @@ A-D正确性40分、参数版本与取消20分、界面布局和可见错误20�
 ./scripts/BuildWorkbenchReference.ps1 -Run
 ```
 
-运行时使用同一Qt/OpenCV的运行时PATH。此独立示例已在锁定MSVC 14.44、Qt6.8.3、OpenCV5.0.0环境以Release /W4 /WX编译链接通过；交互仍需验证，不能把engineering_labs测试结果冒充本窗口测试。它覆盖基础载入、参数、显示及导出，刻意仅同步处理小图；大图后台有界取消、对象表与版本丢弃按第25课和上述扩展验收实现。当前默认窗口的参数变化同步完成，不存在过期结果竞争；后台版本必须为每次提交与结果增加revision并在界面比较后接受。
+运行时使用同一Qt/OpenCV的运行时PATH。此独立示例使用 .ui/QSS 和 qrc；参数保存在模型中，输入图像、阈值、最小面积组成快照交给单个后台线程，待处理槽最多保留一个最新请求。结果带 revision，通过 Qt::QueuedConnection 回到主线程；过期结果丢弃，掩模与 QImage 拥有独立像素。支持连通域表格、参数 JSON 原子保存和重开、PNG 原子导出以及可见错误。Debug/Release 可分别通过脚本构建并运行离屏自检，真实桌面交互需另行检查。
+
+## 进阶验算详解：工作台验收
+
+题目：图中有三块 12×20 矩形，阈值分割后互不接触。最小面积分别取 240、241 时对象数是多少？失败载入及旧任务返回如何处理？
+
+参考计算：每块面积 240，总面积 720；按 area≥minArea 筛选时分别为 3 和 0。失败载入保留上一有效图并提示；每次提交递增 revision，仅接收当前 revision 的结果。导出后重新读取验证尺寸及 countNonZero。
+
+## 面向参考窗口的分步实现和验证
+
+从 `reference/main.cpp` 的可编译基础窗口开始，保持参考程序不进入默认构建。先确认打开图像失败时保留上一幅有效图、阈值 100 时三对象面积 720；把最小面积与阈值整理为独立参数，并将连通区域对象表与总面积从同一个结果计算。将处理拆成纯业务函数，输入持有独立图像快照，输出 mask、对象列表、错误和 revision；边界分别覆盖空图、阈值 0/255、面积 240/241。只在 UI 线程创建 QPixmap，跨线程使用拥有独立内存的图像副本。
+
+参考程序已经使用单工作线程、最新请求槽及版本过滤；取消使未开始的请求和过期结果失效，但不会强行中断正在执行的 OpenCV 调用，关闭时等待该调用结束。PNG 写入通过 QSaveFile 原子提交；导出期间参数、打开及取消控件被禁用并显示“提交期间不可取消”，避免取消与提交的竞态。关闭时会等待正在执行的不可中断 I/O 或 OpenCV 调用。按文件打开、调整参数、导出、重新打开、异常输入和连续改参数的顺序自行录屏；对大图操作再实测界面响应。
+
+参考程序分别保存处理参数 JSON 与掩模 PNG，并检查写入结果；数据来源与版本应在自己的实验记录中补充；文件失败时显示错误而非成功提示。人工验收至少记录 Windows 与锁定依赖版本、图像哈希、交互步骤、对象表、输出文件及失败日志。当前环境未完成真实 GUI 交互或第二台干净机器部署验收。
+
+### 后台结果过滤的代码参考
+
+以下为集成到现有窗口后的伪代码结构，类型注册与 Worker 线程生命周期必须按实际类完成；它不是可单独编译的替代窗口。`result` 应持有独立内存，不引用工作线程即将销毁的临时缓冲区。
+
+```text
+// GUI 线程：每次提交都产生新的版本，参数和图像均为快照。
+++cl_revision;
+Parameters request = currentParameters();
+request.revision = cl_revision;
+submitProcessing(request, imageSnapshot);
+
+// 初始化连接时指定接收者 context 和排队方式。
+connect(worker, &Worker::resultReady, this,
+        [this](const Result& result) {
+            if (result.revision != cl_revision) {
+                return;
+            }
+            if (!result.error.isEmpty()) {
+                showError(result.error);
+                return;
+            }
+            displayResult(result); // 仅在 GUI 线程更新控件
+        }, Qt::QueuedConnection);
+```
+
+取消当前请求时同样递增版本使在途结果失效，再向 worker 发出协作取消；避免主线程销毁仍被 worker 使用的数据。参考程序采用单消费者和版本判断；进一步扩展时须用可控延迟测试：令版本 1 比版本 2 晚返回，最终界面仍显示版本 2；另测关闭窗口时在途任务和队列资源释放。
+
+
+工作台最多接受1000个保留连通域；超过上限时保留上一结果并显示错误，用户可提高最小面积或调整阈值。输入文件最大64 MiB，解码后最多1600万像素。过滤采用一次标签查表遍历；取消使用每次请求独立的 stop_token，在可协作的阶段检查。
