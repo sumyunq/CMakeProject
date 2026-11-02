@@ -12,3 +12,6 @@ CMakeLists.txt text eol=lf
 *.qrc text eol=lf
 *.ui text eol=lf
 *.md text eol=lf
+
+# Hash-verified fixtures must keep exact bytes on every checkout.
+tests/fixtures/real/* -text

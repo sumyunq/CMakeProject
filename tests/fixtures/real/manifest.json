@@ -36,8 +36,8 @@
     },
     {
       "path": "annotations.json",
-      "size_bytes": 906,
-      "sha256": "7285b31dea77981b3fd1e921ca91c47e1eac761d8dc63e654582a9411e2f22a0",
+      "size_bytes": 859,
+      "sha256": "f71a4e9ec0d12db9409a874e6d5c7f39b0f53ebabf76d983775ffec5eafd5080",
       "type": "生成视频的裁剪和位移标注",
       "source": "项目生成",
       "version": "1",
